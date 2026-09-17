@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #0066FF;
+    --primary-dark: #0958A7;
+    --accent: #FDB813;
+    --navy-900: #0A192F;
+    --navy-950: #060E1A;
+    --slate-bg: #F8FAFC;
+    --card-border: #E2E8F0;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glassmorphic utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glass-pill {
+  background: rgba(241, 245, 249, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ==========================================================================
+   Apple Liquid Glass (iOS 26+ / VisionOS Specification & Figma Buttons)
+   ========================================================================== */
+
+/* 1. Liquid Glass Nav Capsule (Hero header) */
+.liquid-glass-nav {
+  position: relative;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: none;
+  box-shadow: 
+    /* Outer custom drop shadow representing the Figma layer */
+    0 10px 30px rgba(0, 0, 0, 0.2),
+    /* Combined Inset Shadows from Rect 3 and 11 */
+    inset 9px 9px 1.5px -10.5px #FFFFFF, 
+    inset 6px 6px 3px -6px #FFFFFF, 
+    inset -6px -6px 3px -6px #B3B3B3, 
+    inset 0px 0px 0px 3px rgba(153, 153, 153, 0.5), /* Inner border #999999 scaled */
+    inset 3px 0px 3px 1px rgba(0, 0, 0, 0.3), 
+    inset 0px -1px 2px 1px rgba(0, 0, 0, 0.1), 
+    inset 9px 9px 6.5px -7.5px #FFFFFF, 
+    inset 6px 9px 7px -6px #FFFFFF, 
+    inset -6px -6px 3px -6px #FFFFFF;
+  overflow: hidden;
+}
+
+/* Simulate Rectangle 10 (Soft inner white bloom for header) */
+.liquid-glass-nav::before {
+  content: "";
+  position: absolute;
+  inset: -4px; 
+  border-radius: inherit;
+  background: #FFFFFF;
+  opacity: 0.5;
+  filter: blur(25px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Simulate Rectangles 4, 7, 8, 9 (Lighter blend mode overlays) */
+.liquid-glass-nav::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.05);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 2. Liquid Glass Circular Dome Orb (48px Service Icons, 40px Theme Toggle) */
+.liquid-glass-icon {
+  position: relative;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  box-shadow: 
+    /* Shadows from user's Rectangle 3 and 11 */
+    inset 9px 9px 1.5px -10.5px #FFFFFF, 
+    inset 6px 6px 3px -6px #FFFFFF, 
+    inset -6px -6px 3px -6px #B3B3B3, 
+    inset 0px 0px 0px 1.5px rgba(153, 153, 153, 0.6), /* Scaled down 3px #999999 */
+    inset 3px 0px 3px 1px rgba(0, 0, 0, 0.25), 
+    inset 0px -1px 2px 1px rgba(0, 0, 0, 0.1), 
+    inset 9px 9px 6.5px -7.5px #FFFFFF, 
+    inset 6px 9px 7px -6px #FFFFFF, 
+    inset -6px -6px 3px -6px #FFFFFF,
+    /* Outer custom drop shadow representing the Figma layer */
+    0 8px 24px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+/* Simulate Rectangle 10 (Soft inner blurry bloom) */
+.liquid-glass-icon::before {
+  content: "";
+  position: absolute;
+  inset: -2px; /* Slight overflow to match left/right bounds in Figma */
+  border-radius: inherit;
+  background: #E1E1E1;
+  opacity: 0.5;
+  filter: blur(10px); /* Scaled down from 25px for 48px size */
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Simulate Rectangles 4, 7, 8, 9 (Lighter blend mode overlays) */
+.liquid-glass-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.05);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 3. Liquid Glass Video Play Button (136px Refractive Disc) */
+.liquid-glass-play {
+  position: relative;
+  border-radius: 9999px;
+  background: radial-gradient(
+    130% 130% at 30% 25%,
+    rgba(255, 255, 255, 0.52) 0%,
+    rgba(255, 255, 255, 0.14) 50%,
+    rgba(215, 228, 245, 0.24) 100%
+  );
+  backdrop-filter: blur(24px) saturate(190%) contrast(105%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(105%);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.28),
+    0 6px 18px rgba(0, 0, 0, 0.15),
+    inset 0 2px 3px rgba(255, 255, 255, 1),
+    inset 6px 6px 14px rgba(255, 255, 255, 0.95),
+    inset 0 0 0 2.5px rgba(150, 160, 175, 0.45),
+    inset -6px -6px 14px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+}
+
+/* Upper-left large specular light reflection arc */
+.liquid-glass-play::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  width: 60px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.35) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(-28deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Bottom secondary bounce reflection */
+.liquid-glass-play::after {
+  content: "";
+  position: absolute;
+  bottom: 12px;
+  right: 22px;
+  width: 44px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: rotate(-28deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+
