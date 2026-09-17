@@ -81,49 +81,48 @@ html {
   pointer-events: none;
 }
 
-/* 1. Core Liquid Glass Element (liquid-glass.pro specification) */
+/* 1. Core Liquid Glass Element (Apple Frosted Glass Specification) */
 .liquid-glass {
   position: relative;
   isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0px 6px 24px rgba(0, 0, 0, 0.12);
-  border: none;
-  background: none;
-  padding: 0;
-  margin: 0;
-  text-decoration: none;
+  border-radius: 28px;
+  background-color: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(28px) saturate(190%) contrast(104%) brightness(108%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%) contrast(104%) brightness(108%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 24px 48px -12px rgba(10, 30, 60, 0.16),
+    0 8px 24px -4px rgba(10, 30, 60, 0.08),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 1.5px 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.06),
+    inset 0 0 20px 4px rgba(255, 255, 255, 0.45);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
 .liquid-glass:focus {
   outline: none;
 }
 
-/* Layer 1: Tint & Inset Specular Shadow */
+/* Diagonal Specular Sheen (Curved Optical Lens Glare) */
 .liquid-glass::before {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 17px 6px #ffffff;
-  background-color: rgba(255, 255, 255, 0.18);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0.22) 38%,
+    transparent 55%,
+    rgba(255, 255, 255, 0.35) 100%
+  );
   pointer-events: none;
-}
-
-/* Layer 2: Optical Distortion & Frosted Blur */
-.liquid-glass::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
-  pointer-events: none;
+  z-index: 1;
 }
 
 .glass-text {
@@ -137,7 +136,16 @@ html {
   position: relative;
   isolation: isolate;
   border-radius: 9999px;
-  box-shadow: 0px 6px 24px rgba(0, 0, 0, 0.12);
+  background-color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(32px) saturate(190%) contrast(104%) brightness(108%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%) contrast(104%) brightness(108%);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 
+    0 16px 36px -8px rgba(10, 30, 60, 0.12),
+    0 4px 12px -2px rgba(10, 30, 60, 0.06),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.05),
+    inset 0 0 18px 2px rgba(255, 255, 255, 0.45);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
@@ -145,24 +153,15 @@ html {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 17px 6px #ffffff;
-  background-color: rgba(255, 255, 255, 0.18);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.15) 45%,
+    transparent 100%
+  );
   pointer-events: none;
-}
-
-.liquid-glass-nav::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
-  pointer-events: none;
+  z-index: 1;
 }
 
 /* Active Segmented Glass Tab inside Nav */
@@ -170,31 +169,13 @@ html {
   position: relative;
   isolation: isolate;
   border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: 0.5px solid rgba(255, 255, 255, 1);
+  box-shadow: 
+    0 4px 12px rgba(9, 88, 167, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 1),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.04);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.4);
-}
-
-.liquid-glass-tab-active::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 12px 4px #ffffff;
-  background-color: rgba(255, 255, 255, 0.35);
-  pointer-events: none;
-}
-
-.liquid-glass-tab-active::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
-  pointer-events: none;
 }
 
 /* Floating Glass Island Pill for Logo on scroll */
@@ -202,32 +183,14 @@ html {
   position: relative;
   isolation: isolate;
   border-radius: 9999px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(28px) saturate(190%) contrast(104%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.90);
+  box-shadow: 
+    0 8px 24px -4px rgba(10, 30, 60, 0.10),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
-}
-
-.liquid-glass-island::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 14px 4px #ffffff;
-  background-color: rgba(255, 255, 255, 0.22);
-  pointer-events: none;
-}
-
-.liquid-glass-island::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
-  pointer-events: none;
 }
 
 /* 3. Liquid Glass Circular Icon / Dome Orb (Services, theme toggle, etc.) */
@@ -235,7 +198,14 @@ html {
   position: relative;
   isolation: isolate;
   border-radius: 9999px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.10);
+  background-color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.90);
+  box-shadow: 
+    0 8px 20px -4px rgba(10, 30, 60, 0.12),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 0 10px rgba(255, 255, 255, 0.55);
   transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 }
 
@@ -243,57 +213,52 @@ html {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 12px 4px #ffffff;
-  background-color: rgba(255, 255, 255, 0.20);
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.25) 60%,
+    transparent 100%
+  );
   pointer-events: none;
+  z-index: 1;
 }
 
-.liquid-glass-icon::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
-  pointer-events: none;
-}
-
-/* 4. Liquid Glass Video Play Button */
+/* 4. Liquid Glass Video Play Button (Refractive Convex Lens) */
 .liquid-glass-play {
   position: relative;
   isolation: isolate;
   border-radius: 9999px;
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.18);
+  background-color: rgba(255, 255, 255, 0.40);
+  backdrop-filter: blur(30px) saturate(200%) contrast(106%) brightness(110%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%) contrast(106%) brightness(110%);
+  border: 1.5px solid rgba(255, 255, 255, 0.90);
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.25),
+    0 8px 20px rgba(0, 0, 0, 0.12),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -2px 2px 0 rgba(0, 0, 0, 0.10),
+    inset 0 0 30px rgba(255, 255, 255, 0.65);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 }
 
 .liquid-glass-play::before {
   content: '';
   position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 20px 8px #ffffff;
-  background-color: rgba(255, 255, 255, 0.22);
+  top: 10%;
+  left: 15%;
+  width: 50%;
+  height: 35%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.35) 60%,
+    transparent 100%
+  );
+  transform: rotate(-25deg);
   pointer-events: none;
-}
-
-.liquid-glass-play::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
-  pointer-events: none;
+  z-index: 2;
 }
 
 
