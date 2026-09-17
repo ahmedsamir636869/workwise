@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import LiquidGlass from "./LiquidGlass";
 
 interface HeroSectionProps {
   onExploreClick?: () => void;
@@ -57,7 +58,7 @@ export default function HeroSection({ onExploreClick }: HeroSectionProps) {
         </div>
 
         {/* Right Image Container - Fully Responsive */}
-        <div className="w-full max-w-[736px] h-[280px] sm:h-[400px] md:h-[480px] lg:h-[548px] relative shrink-0">
+        <div className="w-full max-w-[736px] h-[300px] sm:h-[400px] md:h-[480px] lg:h-[548px] relative shrink-0 flex items-center justify-center">
           <Image
             src="/assets/hero_illustration.png"
             alt="Your next opportunity starts here"
@@ -66,6 +67,47 @@ export default function HeroSection({ onExploreClick }: HeroSectionProps) {
             className="object-contain"
             priority
           />
+
+          {/* Floating Liquid Glass Card with User Specified Configuration */}
+          <div className="absolute -bottom-2 sm:bottom-4 left-2 sm:left-6 z-20 pointer-events-auto">
+            <LiquidGlass
+              width={300}
+              height={200}
+              borderRadius={28}
+              innerShadowColor="#ffffff"
+              innerShadowBlur={17}
+              innerShadowSpread={6}
+              glassTintColor="rgba(255, 255, 255, 0.18)"
+              glassTintOpacity={18}
+              frostBlurRadius={5}
+              noiseFrequency={0.011}
+              noiseStrength={39}
+              className="max-w-[88vw] sm:max-w-none"
+            >
+              <div className="p-5 text-left w-full h-full flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#0958A7] bg-white/70 px-2.5 py-0.5 rounded-full shadow-sm">
+                    Verified Match
+                  </span>
+                  <span className="text-[11px] text-[#48525A] font-semibold">98% Fit</span>
+                </div>
+                <div>
+                  <h4 className="text-[16px] font-bold text-[#262C31] leading-snug">
+                    Senior UI/UX Designer
+                  </h4>
+                  <p className="text-[12px] text-[#48525A] mt-0.5">
+                    Remote • $85,000 - $110,000/yr
+                  </p>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-white/40 text-[12px]">
+                  <span className="text-[#48525A] font-medium">Work Wise Talent</span>
+                  <span className="text-[#0958A7] font-semibold hover:underline cursor-pointer">
+                    Apply Now →
+                  </span>
+                </div>
+              </div>
+            </LiquidGlass>
+          </div>
         </div>
 
       </div>

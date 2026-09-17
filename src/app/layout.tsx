@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { LiquidGlassFilter } from "@/components/LiquidGlassOrb";
+import { LiquidGlassFilter } from "@/components/LiquidGlass";
 
 const poppins = Poppins({
   subsets: ["latin"],
