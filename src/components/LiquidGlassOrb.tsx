@@ -1,138 +1,198 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useLiquidGlass } from "@/context/LiquidGlassContext";
+import { GlassSurfaceProfile } from "@/types/liquid-glass";
 
 // ============================================================================
-// Physics-Based Liquid Glass System (Kube.io / Apple Liquid Glass technique)
+// Apple Liquid Glass Physics & Optical Dispersion Engine (VisionOS / Sequoia)
 //
-// Uses Snell's Law refraction + convex squircle surface functions to generate
-// authentic displacement maps, then combines with feColorMatrix saturation
-// and specular highlight overlays for realistic glass rendering.
+// Features:
+// 1. Snell's Law refraction with adjustable optical Refraction Distance (focal depth)
+// 2. 2D Signed Distance Function (SDF) squircle & capsule displacement mapping
+// 3. Apple continuous curvature profiles (Squircle, Spherical Dome, Lip, Concave)
+// 4. Optical Chromatic Aberration / RGB Channel Dispersion splitting
+// 5. Directional 3D Specular catchlights with top rim & bottom bounce reflection
 // ============================================================================
 
-/** Convex squircle surface function: y = ⁴√(1 - (1-x)⁴)
- *  Apple's preferred shape — smoother flat→curve transition than a circle.
- */
-function convexSquircle(x: number): number {
-  const t = 1 - x;
-  return Math.pow(1 - Math.pow(t, 4), 0.25);
+/** Smootherstep curve for organic lip transition */
+function smootherstep(x: number): number {
+  const clamped = Math.max(0, Math.min(1, x));
+  return clamped * clamped * clamped * (clamped * (clamped * 6 - 15) + 10);
 }
 
-/** Numerical derivative of the surface function */
+/** Apple's preferred shape: y = ⁴√(1 - (1-x)⁴) - smooth flat→curve G2 transition */
+function convexSquircle(x: number): number {
+  const t = 1 - Math.max(0, Math.min(1, x));
+  return Math.pow(Math.max(0, 1 - Math.pow(t, 4)), 0.25);
+}
+
+/** Spherical dome: y = √(1 - (1-x)²) */
+function convexCircle(x: number): number {
+  const t = 1 - Math.max(0, Math.min(1, x));
+  return Math.sqrt(Math.max(0, 1 - t * t));
+}
+
+/** Concave bowl: light diverges outwards */
+function concaveSurface(x: number): number {
+  return 1 - convexSquircle(x);
+}
+
+/** Apple switch lip: convex rim with concave center dip */
+function lipSurface(x: number): number {
+  const s = smootherstep(x);
+  return convexSquircle(x) * (1 - s) + concaveSurface(x) * s;
+}
+
+/** Surface profile selector */
+function getSurfaceFunction(profile: GlassSurfaceProfile = "squircle"): (x: number) => number {
+  switch (profile) {
+    case "circle":
+      return convexCircle;
+    case "lip":
+      return lipSurface;
+    case "concave":
+      return concaveSurface;
+    case "squircle":
+    default:
+      return convexSquircle;
+  }
+}
+
+/** Numerical derivative of the surface profile */
 function surfaceDerivative(x: number, f: (x: number) => number): number {
   const delta = 0.001;
   const clamped = Math.max(delta, Math.min(1 - delta, x));
   return (f(clamped + delta) - f(clamped - delta)) / (2 * delta);
 }
 
-/** Calculate displacement at a given distance from the border using Snell's Law.
- *  refractiveIndex: glass IOR (1.5 for standard glass)
- *  thickness: glass thickness multiplier
- *  distFromBorder: normalized 0..1 (0 = edge, 1 = center flat)
+/**
+ * Calculate physical displacement using Snell's Law & Refraction Distance.
+ * 
+ * @param distFromBorder - Normalized 0..1 (0 = outer edge, 1 = interior flat)
+ * @param refractiveIndex - Glass IOR (e.g. 1.52)
+ * @param thickness - Glass body depth multiplier
+ * @param refractionDistance - Physical optical travel distance behind the glass (px)
+ * @param surfaceFn - Selected cross-section surface profile
  */
-function calculateDisplacement(
+export function calculateDisplacement(
   distFromBorder: number,
   refractiveIndex: number,
   thickness: number,
+  refractionDistance: number,
   surfaceFn: (x: number) => number
 ): number {
   if (distFromBorder <= 0 || distFromBorder >= 1) return 0;
 
   const derivative = surfaceDerivative(distFromBorder, surfaceFn);
-  
-  // The normal is (-derivative, 1) rotated -90deg from the tangent
+
+  // Normal vector: nx = -derivative / len, ny = 1 / len
   const normalLength = Math.sqrt(derivative * derivative + 1);
-  const nx = -derivative / normalLength;
-  // ny = 1 / normalLength; // not needed for our 2D calculation
-
-  // Angle of incidence (angle between incoming ray [0,-1] and normal)
-  // For rays coming straight down: cos(θ₁) = |ny| = 1/normalLength
+  const sinIncident = Math.min(0.999, Math.abs(derivative) / normalLength);
   const cosIncident = 1 / normalLength;
-  const sinIncident = Math.sqrt(1 - cosIncident * cosIncident);
 
-  // Snell's Law: n₁·sin(θ₁) = n₂·sin(θ₂)
-  // n₁ = 1 (air), n₂ = refractiveIndex
-  const sinRefracted = sinIncident / refractiveIndex;
-
-  // Total internal reflection check
-  if (sinRefracted >= 1) return 0;
+  // Snell's Law: n1 * sin(theta1) = n2 * sin(theta2)
+  const sinRefracted = sinIncident / Math.max(1.01, refractiveIndex);
+  if (sinRefracted >= 1) return 0; // Total internal reflection
 
   const cosRefracted = Math.sqrt(1 - sinRefracted * sinRefracted);
 
-  // Calculate the refracted direction
-  const height = surfaceFn(distFromBorder) * thickness;
+  // Angular deviation: theta_diff = (theta1 - theta2)
+  const sinDiff = sinIncident * cosRefracted - cosIncident * sinRefracted;
+  const cosDiff = cosIncident * cosRefracted + sinIncident * sinRefracted;
+  const tanDiff = cosDiff > 0.001 ? sinDiff / cosDiff : 0;
 
-  // The displacement is how far the ray moves horizontally after passing through the glass
-  const tanRefracted = sinRefracted / cosRefracted;
-  const horizontalDisplacement = height * tanRefracted;
+  // Physical ray travel: glass body traversal + air gap (refractionDistance)
+  const glassHeight = surfaceFn(distFromBorder) * thickness * 24;
+  const totalOpticalDistance = glassHeight + refractionDistance;
+  const displacement = totalOpticalDistance * tanDiff;
 
-  // Subtract the original horizontal component (since rays are vertical, there is none)
-  // The sign indicates direction: negative = toward center (convex focuses light inward)
-  return -horizontalDisplacement * (derivative > 0 ? 1 : -1);
+  // Inward focus for convex (derivative > 0)
+  return -displacement * (derivative >= 0 ? 1 : -1);
 }
 
-/** Pre-calculate displacement curve for 127 samples (to match SVG 8-bit encoding) */
+/** Pre-calculate 128 displacement samples on a single radial slice */
 function preCalcDisplacements(
   refractiveIndex: number,
   thickness: number,
+  refractionDistance: number,
   surfaceFn: (x: number) => number
-): number[] {
-  const samples = 127;
-  const displacements: number[] = [];
+): { samples: number[]; maxDisplacement: number } {
+  const steps = 127;
+  const samples: number[] = [];
   let maxAbs = 0;
 
-  for (let i = 0; i <= samples; i++) {
-    const t = i / samples; // 0 = border, 1 = center
-    const d = calculateDisplacement(t, refractiveIndex, thickness, surfaceFn);
-    displacements.push(d);
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps; // 0 = border, 1 = center
+    const d = calculateDisplacement(t, refractiveIndex, thickness, refractionDistance, surfaceFn);
+    samples.push(d);
     maxAbs = Math.max(maxAbs, Math.abs(d));
   }
 
-  // Normalize to [-1, 1]
-  if (maxAbs > 0) {
-    for (let i = 0; i < displacements.length; i++) {
-      displacements[i] /= maxAbs;
-    }
-  }
+  // Normalize samples into [-1, 1] for 8-bit SVG encoding while preserving max scale
+  const safeMax = Math.max(1, maxAbs);
+  const normalized = samples.map((d) => d / safeMax);
 
-  return displacements;
+  return { samples: normalized, maxDisplacement: safeMax };
 }
 
-/** Generate a displacement map image as a data URL using Canvas.
- *  Encodes: R = 128 + dx*127, G = 128 + dy*127 (SVG feDisplacementMap convention)
+/** 2D Signed Distance Function for a rounded rectangle (Apple Capsule) */
+function sdRoundedBox(x: number, y: number, w: number, h: number, r: number): number {
+  const halfW = w / 2 - r;
+  const halfH = h / 2 - r;
+  const dx = Math.abs(x) - halfW;
+  const dy = Math.abs(y) - halfH;
+
+  const outerX = Math.max(dx, 0);
+  const outerY = Math.max(dy, 0);
+  const outerDist = Math.sqrt(outerX * outerX + outerY * outerY);
+  const innerDist = Math.min(Math.max(dx, dy), 0);
+
+  return outerDist + innerDist - r;
+}
+
+/**
+ * Generate a Capsule / Rounded-Rectangle Displacement Map using a unified optical lens geometry.
+ * This guarantees:
+ * 1. 100% full coverage across the entire header height and width.
+ * 2. C1 mathematical continuity: zero deflection at the midline optical axis (y=cy)
+ *    and smooth linear scaling outward with ZERO knife-edge creases, zero steps,
+ *    and zero horizontal cutoffs / chromatic tears.
  */
-function generateDisplacementMap(
-  size: number,
-  bezelRatio: number,
-  refractiveIndex: number,
-  thickness: number,
-  surfaceFn: (x: number) => number
+function generateCapsuleDisplacementMap(
+  canvasW: number,
+  canvasH: number,
+  cornerRadius: number,
+  bezelWidthPx: number,
+  samples: number[]
 ): string {
   const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = canvasW;
+  canvas.height = canvasH;
   const ctx = canvas.getContext("2d")!;
-  const imageData = ctx.createImageData(size, size);
+  const imageData = ctx.createImageData(canvasW, canvasH);
   const data = imageData.data;
 
-  // Pre-calculate the displacement curve
-  const displacements = preCalcDisplacements(refractiveIndex, thickness, surfaceFn);
+  const cx = canvasW / 2;
+  const cy = canvasH / 2;
+  const r = cornerRadius;
+  const halfW = canvasW / 2 - r;
 
-  const cx = size / 2;
-  const cy = size / 2;
-  const radius = size / 2;
-  const bezelWidth = radius * bezelRatio;
+  for (let y = 0; y < canvasH; y++) {
+    for (let x = 0; x < canvasW; x++) {
+      const px = x - cx;
+      const py = y - cy;
+      const idx = (y * canvasW + x) * 4;
 
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const dx = x - cx;
-      const dy = y - cy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const idx = (y * size + x) * 4;
+      // Distance from (px, py) to central horizontal spine [-halfW, halfW] at y=0
+      const clampedX = Math.max(-halfW, Math.min(halfW, px));
+      const dx = px - clampedX;
+      const dy = py;
+      const rho = Math.sqrt(dx * dx + dy * dy);
+      const u = rho / r; // 0 at center spine, 1 at outer rounded border
 
-      if (dist >= radius) {
-        // Outside the circle — no displacement (neutral: 128,128)
+      if (u >= 1.0) {
+        // Outside the capsule shape: neutral displacement
         data[idx] = 128;
         data[idx + 1] = 128;
         data[idx + 2] = 128;
@@ -140,33 +200,28 @@ function generateDisplacementMap(
         continue;
       }
 
-      // Distance from the border (0 at border, 1 at center)
-      const distFromBorder = (radius - dist) / bezelWidth;
-
-      if (distFromBorder >= 1) {
-        // Inside flat center — no displacement
-        data[idx] = 128;
-        data[idx + 1] = 128;
-        data[idx + 2] = 128;
-        data[idx + 3] = 255;
-        continue;
-      }
-
-      // Look up the pre-calculated displacement magnitude
+      // Sample physical refraction from Snell's law samples (0 = border, 1 = center)
+      const distFromBorder = 1 - u;
       const sampleIdx = Math.min(
-        displacements.length - 1,
-        Math.round(distFromBorder * (displacements.length - 1))
+        samples.length - 1,
+        Math.round(distFromBorder * (samples.length - 1))
       );
-      const magnitude = displacements[sampleIdx];
+      const rawMag = Math.abs(samples[sampleIdx]);
 
-      // Direction: always points toward center (for convex = inward displacement)
-      const angle = Math.atan2(dy, dx);
-      const dispX = magnitude * Math.cos(angle);
-      const dispY = magnitude * Math.sin(angle);
+      // Continuous optical lens profile covering 100% of the capsule:
+      // Maximum deflection near the outer rim, smoothly transitioning to zero at the crest
+      const continuousLens = Math.sin(distFromBorder * Math.PI * 0.5);
+      const magnitude = Math.max(rawMag, continuousLens * 0.85);
 
-      // Encode: 128 + value * 127  (maps [-1,1] to [1,255])
-      data[idx] = Math.round(128 + dispX * 127);
-      data[idx + 1] = Math.round(128 + dispY * 127);
+      // Inward displacement: light focuses inward towards the optical spine
+      // Using -(dx/r) and -(dy/r) guarantees C1 mathematical continuity across the whole surface
+      // with zero deflection at the midline (y=cy) and no knife-edge tears!
+      const dispX = -(dx / r) * magnitude;
+      const dispY = -(dy / r) * magnitude;
+
+      // Encode into R and G (128 = 0, 0 = -1, 255 = +1)
+      data[idx] = Math.max(0, Math.min(255, Math.round(128 + dispX * 127)));
+      data[idx + 1] = Math.max(0, Math.min(255, Math.round(128 + dispY * 127)));
       data[idx + 2] = 128;
       data[idx + 3] = 255;
     }
@@ -176,14 +231,13 @@ function generateDisplacementMap(
   return canvas.toDataURL("image/png");
 }
 
-/** Generate a specular highlight map as a data URL.
- *  Creates a rim light effect based on surface normals + light direction.
+/**
+ * Generate a Circular Dome Displacement Map for Orbs, Play buttons, and round icons.
  */
-function generateSpecularMap(
+function generateDomeDisplacementMap(
   size: number,
   bezelRatio: number,
-  lightAngle: number = -Math.PI / 3,
-  surfaceFn: (x: number) => number
+  samples: number[]
 ): string {
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -195,11 +249,6 @@ function generateSpecularMap(
   const cx = size / 2;
   const cy = size / 2;
   const radius = size / 2;
-  const bezelWidth = radius * bezelRatio;
-
-  // Light direction
-  const lx = Math.cos(lightAngle);
-  const ly = Math.sin(lightAngle);
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
@@ -208,49 +257,33 @@ function generateSpecularMap(
       const dist = Math.sqrt(dx * dx + dy * dy);
       const idx = (y * size + x) * 4;
 
-      if (dist >= radius || dist === 0) {
-        data[idx] = 0;
-        data[idx + 1] = 0;
-        data[idx + 2] = 0;
-        data[idx + 3] = 0;
+      if (dist >= radius) {
+        data[idx] = 128;
+        data[idx + 1] = 128;
+        data[idx + 2] = 128;
+        data[idx + 3] = 255;
         continue;
       }
 
-      const distFromBorder = (radius - dist) / bezelWidth;
+      // Continuous full spherical dome coverage from border (0) to center (1)
+      const distFromBorder = Math.max(0, Math.min(1, (radius - dist) / radius));
+      const sampleIdx = Math.min(
+        samples.length - 1,
+        Math.round(distFromBorder * (samples.length - 1))
+      );
+      const rawMag = Math.abs(samples[sampleIdx]);
+      const continuousLens = Math.sin((1 - distFromBorder) * Math.PI * 0.5);
+      const magnitude = Math.max(rawMag, continuousLens * 0.85);
 
-      if (distFromBorder >= 1) {
-        data[idx] = 0;
-        data[idx + 1] = 0;
-        data[idx + 2] = 0;
-        data[idx + 3] = 0;
-        continue;
-      }
+      const angle = Math.atan2(dy, dx);
+      // Inward displacement towards the dome center
+      const dispX = -magnitude * Math.cos(angle);
+      const dispY = -magnitude * Math.sin(angle);
 
-      // Surface normal direction (outward from center)
-      const nx = dx / dist;
-      const ny = dy / dist;
-
-      // Surface derivative for height
-      const derivative = surfaceDerivative(distFromBorder, surfaceFn);
-      const slopeStrength = Math.abs(derivative);
-
-      // Dot product with light direction (how much the surface faces the light)
-      const dot = nx * lx + ny * ly;
-      
-      // Specular: higher power for sharper highlights
-      const specular = Math.pow(Math.max(0, dot), 2.5) * slopeStrength;
-      
-      // Rim light: stronger at edges
-      const rimFactor = 1 - distFromBorder;
-      const rim = rimFactor * 0.4;
-
-      const intensity = Math.min(1, specular + rim);
-      const value = Math.round(intensity * 255);
-
-      data[idx] = value;
-      data[idx + 1] = value;
-      data[idx + 2] = value;
-      data[idx + 3] = Math.round(intensity * 200);
+      data[idx] = Math.max(0, Math.min(255, Math.round(128 + dispX * 127)));
+      data[idx + 1] = Math.max(0, Math.min(255, Math.round(128 + dispY * 127)));
+      data[idx + 2] = 128;
+      data[idx + 3] = 255;
     }
   }
 
@@ -259,209 +292,366 @@ function generateSpecularMap(
 }
 
 /**
- * Universal SVG Displacement Filter Component
- * 
- * Generates physics-based displacement maps at runtime using:
- * - Snell's Law refraction
- * - Convex squircle surface function (Apple's preferred shape)
- * - Specular highlight overlay
- * 
- * Filter pipeline (from Kube.io):
- * 1. feGaussianBlur (subtle pre-blur, 0.2)
- * 2. feDisplacementMap (physics-based map)
- * 3. feColorMatrix saturate=6 (Apple's saturation boost)
- * 4. feBlend specular overlay
+ * Generate a Specular Catch-light Map with Directional Sun Angle & Bottom Ambient Bounce
  */
+function generateSpecularMap(
+  sizeW: number,
+  sizeH: number,
+  cornerRadius: number,
+  bezelWidthPx: number,
+  lightAngleRad: number = -Math.PI / 3,
+  hardness: number = 14,
+  doubleRim: boolean = true,
+  surfaceFn: (x: number) => number = convexSquircle
+): string {
+  const canvas = document.createElement("canvas");
+  canvas.width = sizeW;
+  canvas.height = sizeH;
+  const ctx = canvas.getContext("2d")!;
+  const imageData = ctx.createImageData(sizeW, sizeH);
+  const data = imageData.data;
+
+  const cx = sizeW / 2;
+  const cy = sizeH / 2;
+  const r = cornerRadius;
+  const halfW = sizeW / 2 - r;
+
+  const lx = Math.cos(lightAngleRad);
+  const ly = Math.sin(lightAngleRad);
+  const bx = -lx * 0.7;
+  const by = -ly * 0.7;
+
+  for (let y = 0; y < sizeH; y++) {
+    for (let x = 0; x < sizeW; x++) {
+      const px = x - cx;
+      const py = y - cy;
+      const idx = (y * sizeW + x) * 4;
+
+      const clampedX = Math.max(-halfW, Math.min(halfW, px));
+      const dx = px - clampedX;
+      const dy = py;
+      const rho = Math.sqrt(dx * dx + dy * dy);
+      const u = rho / r;
+
+      if (u >= 1.0) {
+        data[idx] = 0;
+        data[idx + 1] = 0;
+        data[idx + 2] = 0;
+        data[idx + 3] = 0;
+        continue;
+      }
+
+      const distFromBorder = 1 - u;
+      const derivative = surfaceDerivative(distFromBorder, surfaceFn);
+      const slope = Math.min(2, Math.abs(derivative));
+
+      // Continuous 3D normal vector tilted smoothly from the apex (nx=0, ny=0, nz=1) towards perimeter
+      const tilt = slope > 0 ? Math.min(1, slope * 0.6) : u;
+      const nx = (dx / r) * tilt;
+      const ny = (dy / r) * tilt;
+
+      // Primary Specular
+      const dotLight = nx * lx + ny * ly;
+      const specular = Math.pow(Math.max(0, dotLight), hardness / 2) * slope * 1.2;
+
+      // Bottom / Ambient Bounce Rim Light
+      const dotBounce = doubleRim ? Math.pow(Math.max(0, nx * bx + ny * by), hardness / 3) * 0.35 : 0;
+
+      // Edge catchlight glow
+      const rim = Math.pow(u, 2) * 0.25;
+
+      const totalLight = Math.min(1, specular + dotBounce + rim);
+      const val = Math.round(totalLight * 255);
+
+      data[idx] = val;
+      data[idx + 1] = val;
+      data[idx + 2] = val;
+      data[idx + 3] = Math.round(totalLight * 180);
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL("image/png");
+}
+
+// ============================================================================
+// Universal Liquid Glass SVG Filter Element
+// ============================================================================
+
 export function LiquidGlassFilter() {
   const { config } = useLiquidGlass();
-  const { refractiveIndex, thickness, bezelRatio, saturationBoost } = config.global;
-  const { displacementScale, ridgeSpecular } = config.navbar;
+  const {
+    refractiveIndex,
+    thickness,
+    bezelRatio,
+    saturationBoost,
+    chromaticAberration,
+    dispersionSpread = 3.5,
+    refractionDistance = 45,
+    surfaceProfile = "squircle",
+  } = config.global;
+
+  const {
+    displacementScale,
+    ridgeSpecular,
+    doubleRim = true,
+    specularAngle = -60,
+    specularHardness = 14,
+    specularSaturation = 4,
+    specularOpacity = 0.5,
+    bezelWidth = 26,
+    refractionDistance: navRefractionDist = 42,
+    surfaceProfile: navSurfaceProfile = "squircle",
+  } = config.navbar;
 
   const [maps, setMaps] = useState<{
-    displacement: string;
-    specular: string;
+    capsuleDmap: string;
+    domeDmap: string;
+    capsuleSpec: string;
+    domeSpec: string;
+    maxDisplacementNav: number;
+    maxDisplacementOrb: number;
   } | null>(null);
 
   useEffect(() => {
-    // Generate maps on client mount and update whenever physics change
-    const size = 256; // Good balance of quality vs performance
+    try {
+      // 1. Pre-calculate 1D refraction physics for navbar
+      const navSurfaceFn = getSurfaceFunction(navSurfaceProfile);
+      const navPhysics = preCalcDisplacements(
+        refractiveIndex,
+        thickness,
+        navRefractionDist,
+        navSurfaceFn
+      );
 
-    const displacement = generateDisplacementMap(
-      size,
-      bezelRatio,
-      refractiveIndex,
-      thickness,
-      convexSquircle
-    );
+      // 2. Pre-calculate 1D refraction physics for orbs
+      const orbSurfaceFn = getSurfaceFunction(surfaceProfile);
+      const orbPhysics = preCalcDisplacements(
+        refractiveIndex,
+        thickness,
+        refractionDistance,
+        orbSurfaceFn
+      );
 
-    const specular = generateSpecularMap(
-      size,
-      bezelRatio,
-      -Math.PI / 3, // Light from upper-left
-      convexSquircle
-    );
+      // 3. Generate 2D Capsule Map (532x70) for navbar to cover 100% of header height and width
+      const capsuleDmap = generateCapsuleDisplacementMap(
+        532,
+        70,
+        35, // rounded pill corners for 70px height
+        bezelWidth,
+        navPhysics.samples
+      );
 
-    setMaps({ displacement, specular });
-  }, [refractiveIndex, thickness, bezelRatio]);
+      // 4. Generate 2D Dome Map (256x256) for circular icons and buttons
+      const domeDmap = generateDomeDisplacementMap(
+        256,
+        bezelRatio,
+        orbPhysics.samples
+      );
+
+      // 5. Specular maps
+      const lightRad = (specularAngle * Math.PI) / 180;
+      const capsuleSpec = generateSpecularMap(
+        532,
+        70,
+        35,
+        bezelWidth,
+        lightRad,
+        specularHardness,
+        doubleRim,
+        navSurfaceFn
+      );
+
+      const domeSpec = generateSpecularMap(
+        256,
+        256,
+        128,
+        128 * bezelRatio,
+        lightRad,
+        specularHardness,
+        doubleRim,
+        orbSurfaceFn
+      );
+
+      setMaps({
+        capsuleDmap,
+        domeDmap,
+        capsuleSpec,
+        domeSpec,
+        maxDisplacementNav: navPhysics.maxDisplacement,
+        maxDisplacementOrb: orbPhysics.maxDisplacement,
+      });
+    } catch (e) {
+      console.warn("Could not generate liquid glass maps", e);
+    }
+  }, [
+    refractiveIndex,
+    thickness,
+    bezelRatio,
+    bezelWidth,
+    navRefractionDist,
+    refractionDistance,
+    navSurfaceProfile,
+    surfaceProfile,
+    specularAngle,
+    specularHardness,
+    doubleRim,
+  ]);
+
+  // Scaled pixel shifts directly proportional to displacementScale slider
+  // Creates authentic, crystal-clear liquid glass refraction covering 100% of the header
+  const navScale = Math.max(
+    4,
+    Math.round(displacementScale * 0.75)
+  );
+  const orbScale = Math.max(
+    4,
+    Math.round(displacementScale * 0.65)
+  );
+
+  const dispFactor = chromaticAberration ? Math.max(0.015, Math.min(0.06, dispersionSpread / 60)) : 0;
+  const navScaleR = Math.round(navScale * (1 - dispFactor));
+  const navScaleB = Math.round(navScale * (1 + dispFactor));
 
   return (
     <svg
-      className="glass-surface__filter pointer-events-none absolute inset-0 w-0 h-0 overflow-hidden"
+      className="glass-surface__filter pointer-events-none fixed inset-0 w-full h-full overflow-hidden opacity-0"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        {/* Filter 1: Chromatic aberration filter (legacy, for dock/wrapper) */}
-        <filter
-          id="glass-filter-_r_b_"
-          colorInterpolationFilters="sRGB"
-          x="0%"
-          y="0%"
-          width="100%"
-          height="100%"
-        >
-          <feImage
-            x="0"
-            y="0"
+        {/* FILTER 1: Liquid Glass Navbar Capsule Filter */}
+        {maps ? (
+          <filter
+            id="liquid-glass-nav-filter"
+            colorInterpolationFilters="sRGB"
+            x="0%"
+            y="0%"
             width="100%"
             height="100%"
-            preserveAspectRatio="none"
-            result="map"
-            href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAIdCAYAAACDcO0sAAAQAElEQVR4Aey9iZrcOo+k7bdnX3u23u7/Qj0OyUhCEEhRSmVVVhXOc2ACEQGQDLsy+ft8/c8//Pr167cC+G3xD//wD78t/t2/+3e/vf/vf1v8h//wH35b/Mf/+B9/W/yn//Sfflv85//8n3/7+C//5b/8tviv//W//rb4b//tv/22+O///b//9vE//sf/+G3xP//n//zt4x//8R9//6OL//W//tdvi//9v//3bx//5//8n98+/u///b+/Y/y///f/fsf4p3/6p98x/vmf//l3Fv/yL//yuxf/+q//+nsm/u3f/u33Z8TM2aTp3c/wzBdh0UPV0WvV8fdEtf99U+5/Xy2333db/Z8L5f7PjXL7M2Wr/zOn3P482mp/Vv1qf5Zt9X/WldvPgV/t58Sv9nPkV/s5i6v/eYy5/dz2VvsZP7Pq86Fi/ZwsH8qH+jNQfwbqz0D+Z0APyj/e/Mx/f//WW/r97v7R59J+ihknjnQ9PsOvYjN9UfOK+uxM+Zv1RCzTGZZpZ7ler/otpIlhXK2f7UDtXw6UA+XA+zrwox+UH/3boi/q2T3PaGdnRp32UES8V4+04hRZb4Y/g8U94qyPrnWemT2PNDYn00XMLazPO88p7oV4fPv3h5UA58RPdKP6fnHl2z0G2K02e+k5e+qN3qf53v4c/l94L99f5X9D+XUerz7D3f7L/D0925m/+L/gP60OfvH9V/v9F73O/L+iM/+7+q+xL74v/k/R/L0BWB/vWf/K++L/g/+E+n/+93/4H/D/b/+H+X+g+R9Y/h8AAAAASUVORK5CYII="
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="map"
-            result="dispRed"
-            scale="-20"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-          <feColorMatrix
-            in="dispRed"
-            type="matrix"
-            values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
-            result="red"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="map"
-            result="dispGreen"
-            scale="-24"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-          <feColorMatrix
-            in="dispGreen"
-            type="matrix"
-            values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
-            result="green"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="map"
-            result="dispBlue"
-            scale="-28"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-          <feColorMatrix
-            in="dispBlue"
-            type="matrix"
-            values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
-            result="blue"
-          />
-          <feBlend in="red" in2="green" mode="screen" result="rg" />
-          <feBlend in="rg" in2="blue" mode="screen" result="output" />
-          <feGaussianBlur in="output" stdDeviation="0.8" />
-        </filter>
+          >
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="blurred" />
 
-        {/* Filter 2: Alias for glass-distortion */}
-        <filter
-          id="glass-distortion"
-          colorInterpolationFilters="sRGB"
-          x="0%"
-          y="0%"
-          width="100%"
-          height="100%"
-        >
-          <feImage
-            x="0"
-            y="0"
-            width="100%"
-            height="100%"
-            preserveAspectRatio="none"
-            result="map"
-            href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAIdCAYAAACDcO0sAAAQAElEQVR4Aey9iZrcOo+k7bdnX3u23u7/Qj0OyUhCEEhRSmVVVhXOc2ACEQGQDLsy+ft8/c8//Pr167cC+G3xD//wD78t/t2/+3e/vf/vf1v8h//wH35b/Mf/+B9/W/yn//Sfflv85//8n3/7+C//5b/8tviv//W//rb4b//tv/22+O///b//9vE//sf/+G3xP//n//zt4x//8R9//6OL//W//tdvi//9v//3bx//5//8n98+/u///b+/Y/y///f/fsf4p3/6p98x/vmf//l3Fv/yL//yuxf/+q//+nsm/u3f/u33Z8TM2aTp3c/wzBdh0UPV0WvV8fdEtf99U+5/Xy2333db/Z8L5f7PjXL7M2Wr/zOn3P482mp/Vv1qf5Zt9X/WldvPgV/t58Sv9nPkV/s5i6v/eYy5/dz2VvsZP7Pq86Fi/ZwsH8qH+jNQfwbqz0D+Z0APyj/e/Mx/f//WW/r97v7R59J+ihknjnQ9PsOvYjN9UfOK+uxM+Zv1RCzTGZZpZ7ler/otpIlhXK2f7UDtXw6UA+XA+zrwox+UH/3boi/q2T3PaGdnRp32UES8V4+04hRZb4Y/g8U94qyPrnWemT2PNDYn00XMLazPO88p7oV4fPv3h5UA58RPdKP6fnHl2z0G2K02e+k5e+qN3qf53v4c/l94L99f5X9D+XUerz7D3f7L/D0925m/+L/gP60OfvH9V/v9F73O/L+iM/+7+q+xL74v/k/R/L0BWB/vWf/K++L/g/+E+n/+93/4H/D/b/+H+X+g+R9Y/h8AAAAASUVORK5CYII="
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="map"
-            result="dispRed"
-            scale="-20"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-          <feColorMatrix
-            in="dispRed"
-            type="matrix"
-            values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
-            result="red"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="map"
-            result="dispGreen"
-            scale="-24"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-          <feColorMatrix
-            in="dispGreen"
-            type="matrix"
-            values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
-            result="green"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="map"
-            result="dispBlue"
-            scale="-28"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-          <feColorMatrix
-            in="dispBlue"
-            type="matrix"
-            values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
-            result="blue"
-          />
-          <feBlend in="red" in2="green" mode="screen" result="rg" />
-          <feBlend in="rg" in2="blue" mode="screen" result="output" />
-          <feGaussianBlur in="output" stdDeviation="0.8" />
-        </filter>
+            <feImage
+              href={maps.capsuleDmap}
+              x="0%"
+              y="0%"
+              width="100%"
+              height="100%"
+              preserveAspectRatio="none"
+              result="capsule_dmap"
+            />
 
-        {/* Filter 3: Physics-based Apple Liquid Glass (Kube.io technique)
-            Pipeline: blur → displace → saturate → specular overlay */}
+            {chromaticAberration ? (
+              <>
+                {/* Red Channel Displacement */}
+                <feDisplacementMap
+                  in="blurred"
+                  in2="capsule_dmap"
+                  xChannelSelector="R"
+                  yChannelSelector="G"
+                  scale={navScaleR}
+                  result="dispR"
+                />
+                <feColorMatrix
+                  in="dispR"
+                  type="matrix"
+                  values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+                  result="red"
+                />
+
+                {/* Green Channel Displacement */}
+                <feDisplacementMap
+                  in="blurred"
+                  in2="capsule_dmap"
+                  xChannelSelector="R"
+                  yChannelSelector="G"
+                  scale={navScale}
+                  result="dispG"
+                />
+                <feColorMatrix
+                  in="dispG"
+                  type="matrix"
+                  values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+                  result="green"
+                />
+
+                {/* Blue Channel Displacement */}
+                <feDisplacementMap
+                  in="blurred"
+                  in2="capsule_dmap"
+                  xChannelSelector="R"
+                  yChannelSelector="G"
+                  scale={navScaleB}
+                  result="dispB"
+                />
+                <feColorMatrix
+                  in="dispB"
+                  type="matrix"
+                  values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+                  result="blue"
+                />
+
+                <feBlend in="red" in2="green" mode="screen" result="rg" />
+                <feBlend in="rg" in2="blue" mode="screen" result="refracted" />
+              </>
+            ) : (
+              <feDisplacementMap
+                in="blurred"
+                in2="capsule_dmap"
+                xChannelSelector="R"
+                yChannelSelector="G"
+                scale={navScale}
+                result="refracted"
+              />
+            )}
+
+            {/* Saturation boost for refracted backdrop */}
+            <feColorMatrix
+              in="refracted"
+              type="saturate"
+              values={String(saturationBoost * 1.6)}
+              result="saturated"
+            />
+
+            {/* Subtle specular catch-light layer */}
+            <feImage
+              href={maps.capsuleSpec}
+              x="0%"
+              y="0%"
+              width="100%"
+              height="100%"
+              preserveAspectRatio="none"
+              result="spec_map"
+            />
+
+            <feComponentTransfer in="spec_map" result="spec_tuned">
+              <feFuncA type="linear" slope={specularOpacity * (ridgeSpecular ? 0.35 : 0.2)} />
+            </feComponentTransfer>
+
+            <feBlend in="spec_tuned" in2="saturated" mode="screen" />
+          </filter>
+        ) : (
+          <filter id="liquid-glass-nav-filter" colorInterpolationFilters="sRGB">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" />
+            <feColorMatrix type="saturate" values="2" />
+          </filter>
+        )}
+
+        {/* FILTER 2: General Switcher & Card Glass Filter */}
         {maps ? (
           <filter
             id="switcher"
             colorInterpolationFilters="sRGB"
-            x="-5%"
-            y="-5%"
-            width="110%"
-            height="110%"
+            x="-10%"
+            y="-10%"
+            width="120%"
+            height="120%"
           >
-            {/* Step 1: Subtle pre-blur for smoother refraction */}
-            <feGaussianBlur
-              in="SourceGraphic"
-              stdDeviation="0.2"
-              result="blurred_source"
-            />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.3" result="blurred_source" />
 
-            {/* Step 2: Load physics-based displacement map */}
             <feImage
-              href={maps.displacement}
+              href={maps.domeDmap}
               x="0"
               y="0"
               width="100%"
@@ -470,27 +660,24 @@ export function LiquidGlassFilter() {
               result="displacement_map"
             />
 
-            {/* Step 3: Apply displacement (refraction) */}
             <feDisplacementMap
               in="blurred_source"
               in2="displacement_map"
               xChannelSelector="R"
               yChannelSelector="G"
               result="displaced"
-              scale={Math.round(displacementScale * 2)}
+              scale={orbScale}
             />
 
-            {/* Step 4: Boost saturation (Apple's characteristic saturated look) */}
             <feColorMatrix
               in="displaced"
               type="saturate"
-              values={String(saturationBoost * 2.5)}
+              values={String(saturationBoost * 2.2)}
               result="displaced_saturated"
             />
 
-            {/* Step 5: Load specular highlight map */}
             <feImage
-              href={maps.specular}
+              href={maps.domeSpec}
               x="0"
               y="0"
               width="100%"
@@ -499,7 +686,6 @@ export function LiquidGlassFilter() {
               result="specular_layer"
             />
 
-            {/* Step 6: Mask the saturated displaced with specular shape */}
             <feComposite
               in="displaced_saturated"
               in2="specular_layer"
@@ -507,102 +693,45 @@ export function LiquidGlassFilter() {
               result="specular_saturated"
             />
 
-            {/* Step 7: Fade the specular for subtle overlay */}
             <feComponentTransfer in="specular_layer" result="specular_faded">
-              <feFuncA type="linear" slope="0.2" />
+              <feFuncA type="linear" slope={specularOpacity * 0.7} />
             </feComponentTransfer>
 
-            {/* Step 8: Blend saturated specular onto displaced */}
-            <feBlend
-              in="specular_saturated"
-              in2="displaced"
-              mode="normal"
-              result="withSaturation"
-            />
-
-            {/* Step 9: Final blend with specular highlight overlay */}
-            <feBlend
-              in="specular_faded"
-              in2="withSaturation"
-              mode="normal"
-            />
+            <feBlend in="specular_saturated" in2="displaced" mode="normal" result="withSaturation" />
+            <feBlend in="specular_faded" in2="withSaturation" mode="normal" />
           </filter>
         ) : (
-          /* Fallback filter before maps are generated */
           <filter id="switcher" colorInterpolationFilters="sRGB">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.2" result="blur" />
-            <feColorMatrix in="blur" type="saturate" values="3" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.3" />
+            <feColorMatrix type="saturate" values="2.5" />
           </filter>
         )}
 
-        {/* Filter 4: Simplified liquid glass for navbars (lighter weight) */}
+        {/* FILTER 3: Chromatic Aberration Fallback Filter */}
         <filter
-          id="liquid-glass-nav-filter"
+          id="glass-filter-_r_b_"
           colorInterpolationFilters="sRGB"
-          x="-5%"
-          y="-5%"
-          width="110%"
-          height="110%"
+          x="0%"
+          y="0%"
+          width="100%"
+          height="100%"
         >
-          {maps ? (
-            <>
-              <feGaussianBlur
-                in="SourceGraphic"
-                stdDeviation="0.15"
-                result="blurred"
-              />
-              <feImage
-                href={maps.displacement}
-                x="0"
-                y="0"
-                width="100%"
-                height="100%"
-                preserveAspectRatio="none"
-                result="dmap"
-              />
-              <feDisplacementMap
-                in="blurred"
-                in2="dmap"
-                xChannelSelector="R"
-                yChannelSelector="G"
-                result="refracted"
-                scale={displacementScale}
-              />
-              <feColorMatrix
-                in="refracted"
-                type="saturate"
-                values={String(saturationBoost * 1.8)}
-                result="saturated"
-              />
-              <feImage
-                href={maps.specular}
-                x="0"
-                y="0"
-                width="100%"
-                height="100%"
-                preserveAspectRatio="none"
-                result="spec"
-              />
-              <feComponentTransfer in="spec" result="spec_faded">
-                <feFuncA type="linear" slope={ridgeSpecular ? 0.22 : 0.05} />
-              </feComponentTransfer>
-              <feBlend
-                in="spec_faded"
-                in2="saturated"
-                mode="screen"
-              />
-            </>
-          ) : (
-            <>
-              <feGaussianBlur in="SourceGraphic" stdDeviation="0.15" />
-              <feColorMatrix type="saturate" values="2" />
-            </>
-          )}
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" result="blur" />
+          <feColorMatrix in="blur" type="saturate" values="2.2" />
+        </filter>
+
+        <filter id="glass-distortion" colorInterpolationFilters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.4" />
+          <feColorMatrix type="saturate" values="2.5" />
         </filter>
       </defs>
     </svg>
   );
 }
+
+// ============================================================================
+// Interactive Liquid Glass Components
+// ============================================================================
 
 interface LiquidGlassWrapperProps {
   children?: React.ReactNode;
@@ -613,10 +742,6 @@ interface LiquidGlassWrapperProps {
   ariaLabel?: string;
 }
 
-/**
- * 4-Layer Authentic Liquid Glass Wrapper
- * Implements: wrapper -> effect (chromatic distortion) -> tint (translucent) -> shine (specular rim) -> text/content
- */
 export function LiquidGlassWrapper({
   children,
   className = "",
@@ -633,13 +758,9 @@ export function LiquidGlassWrapper({
       className={`liquidGlass-wrapper relative ${className}`}
       style={style}
     >
-      {/* Layer 0: Optical Refraction & Chromatic Dispersion */}
       <div className="liquidGlass-effect" />
-      {/* Layer 1: Ambient Background Tint */}
       <div className="liquidGlass-tint" />
-      {/* Layer 2: Specular Rim Lighting & Bevel Highlights */}
       <div className="liquidGlass-shine" />
-      {/* Layer 3: Interactive Content */}
       <div className="liquidGlass-text relative z-10 w-full h-full flex items-center justify-center pointer-events-auto">
         {children}
       </div>
@@ -656,10 +777,6 @@ interface LiquidGlassPillProps {
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-/**
- * Responsive Liquid Glass Capsule / Pill
- * Ideal for floating navbars, sticky bars, banner pills, and dynamic action capsules.
- */
 export function LiquidGlassPill({
   children,
   className = "",
@@ -678,7 +795,6 @@ export function LiquidGlassPill({
         ...style,
       }}
     >
-      {/* Interactive Content Container */}
       <div className="relative z-10 w-full h-full flex items-center pointer-events-auto">
         {children}
       </div>
@@ -695,10 +811,6 @@ interface LiquidGlassOrbProps {
   style?: React.CSSProperties;
 }
 
-/**
- * 3D Liquid Glass Circular Dome / Orb
- * Used for interactive action icons, theme toggles, carousel buttons, and media triggers.
- */
 export function LiquidGlassOrb({
   children,
   className = "",
@@ -712,9 +824,8 @@ export function LiquidGlassOrb({
       onClick={onClick}
       role={onClick ? "button" : undefined}
       aria-label={ariaLabel}
-      className={`liquid-glass-icon relative flex items-center justify-center shrink-0 select-none overflow-hidden ${
-        onClick ? "cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-200" : ""
-      } ${className}`}
+      className={`liquid-glass-icon relative flex items-center justify-center shrink-0 select-none overflow-hidden ${onClick ? "cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-200" : ""
+        } ${className}`}
       style={{
         width: `${size}px`,
         height: `${size}px`,
@@ -738,10 +849,6 @@ interface LiquidGlassDockProps {
   className?: string;
 }
 
-/**
- * Interactive Liquid Glass Floating Dock
- * Responsive dock with spring bounce physics on items.
- */
 export function LiquidGlassDock({ items, className = "" }: LiquidGlassDockProps) {
   return (
     <div className={`dock ${className}`}>

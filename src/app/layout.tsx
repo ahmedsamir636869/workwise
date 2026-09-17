@@ -5,6 +5,8 @@ import { LiquidGlassFilter } from "@/components/LiquidGlassOrb";
 import { LiquidGlassProvider } from "@/context/LiquidGlassContext";
 import LiquidGlassCMSDrawer from "@/components/LiquidGlassCMS/LiquidGlassCMSDrawer";
 
+import { ThemeProvider } from "@/context/ThemeContext";
+
 const poppins = Poppins({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -29,15 +31,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} ${playfair.variable}`}>
-      <body className="min-h-screen bg-[#F3F8FF] text-slate-900 antialiased selection:bg-[#0958A7] selection:text-white">
-        <LiquidGlassProvider>
-          {/* Global Liquid Glass Optical Refraction Filter */}
-          <LiquidGlassFilter />
-          {children}
-          {/* Floating Liquid Glass CMS Control Widget */}
-          <LiquidGlassCMSDrawer />
-        </LiquidGlassProvider>
+    <html lang="en" className={`dark ${poppins.variable} ${playfair.variable}`} data-theme="dark">
+      <body className="min-h-screen bg-[#060C16] text-white dark:bg-[#060C16] dark:text-white antialiased selection:bg-[#0958A7] selection:text-white transition-colors duration-300">
+        <ThemeProvider>
+          <LiquidGlassProvider>
+            {/* Global Liquid Glass Optical Refraction Filter */}
+            <LiquidGlassFilter />
+            {children}
+            {/* Floating Liquid Glass CMS Control Widget */}
+            <LiquidGlassCMSDrawer />
+          </LiquidGlassProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

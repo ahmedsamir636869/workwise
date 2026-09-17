@@ -11,8 +11,10 @@ import Testimonials from "@/components/Testimonials";
 import CtaBanner from "@/components/CtaBanner";
 import Footer from "@/components/Footer";
 import AuthModal from "@/components/AuthModal";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Home() {
+  const { isDark } = useTheme();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
 
@@ -22,7 +24,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F3F8FF]">
+    <main className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-[#060C16] text-white" : "bg-[#F3F8FF] text-[#262C31]"}`}>
       {/* Top Navbar */}
       <Navbar onOpenAuth={handleOpenAuth} />
 

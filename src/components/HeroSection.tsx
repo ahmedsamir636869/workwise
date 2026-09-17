@@ -4,12 +4,15 @@ import React from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTheme } from "@/context/ThemeContext";
 
 interface HeroSectionProps {
   onExploreClick?: () => void;
 }
 
 export default function HeroSection({ onExploreClick }: HeroSectionProps) {
+  const { isDark } = useTheme();
+
   return (
     <section className="relative w-full flex justify-center pt-[100px] sm:pt-[120px] lg:pt-[130px] pb-12 sm:pb-16 lg:pb-[90px] px-4 sm:px-6 bg-transparent overflow-hidden">
       {/* Frame 31: Responsive Main Layout */}
@@ -22,18 +25,26 @@ export default function HeroSection({ onExploreClick }: HeroSectionProps) {
           <div className="flex flex-col items-start w-full gap-4">
             {/* Title */}
             <h1 
-              className="text-[#262C31] text-[38px] sm:text-[52px] lg:text-[62px] xl:text-[72px] leading-[1.12] tracking-tight font-serif"
+              className={`text-[38px] sm:text-[52px] lg:text-[62px] xl:text-[72px] leading-[1.12] tracking-tight font-serif transition-colors duration-200 ${
+                isDark ? "text-white" : "text-[#262C31]"
+              }`}
               style={{ 
                 fontFamily: "'thmanyah serif display', serif", 
                 fontWeight: 700,
               }}
             >
-              Your next opportunity starts here.
+              {isDark ? (
+                <>Your next opportunity <span className="text-[#FFBA26]">starts here.</span></>
+              ) : (
+                "Your next opportunity starts here."
+              )}
             </h1>
             
             {/* Subtitle */}
             <p 
-              className="text-[#48525A] font-sans font-normal text-base sm:text-lg leading-relaxed max-w-[460px]"
+              className={`font-sans font-normal text-base sm:text-lg leading-relaxed max-w-[460px] transition-colors duration-200 ${
+                isDark ? "text-[#94A3B8]" : "text-[#48525A]"
+              }`}
             >
               Explore exciting career opportunities, build your skills, and take the next step with a team that believes in your potential.
             </p>
@@ -59,11 +70,11 @@ export default function HeroSection({ onExploreClick }: HeroSectionProps) {
         {/* Right Image Container - Fully Responsive */}
         <div className="w-full max-w-[736px] h-[280px] sm:h-[400px] md:h-[480px] lg:h-[548px] relative shrink-0">
           <Image
-            src="/assets/hero_illustration.png"
+            src={isDark ? "/assets/dark_hero_illustration.png" : "/assets/hero_illustration.png"}
             alt="Your next opportunity starts here"
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 736px"
-            className="object-contain"
+            className="object-contain transition-all duration-300"
             priority
           />
         </div>

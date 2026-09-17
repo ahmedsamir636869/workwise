@@ -3,8 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function CtaBanner() {
+  const { isDark } = useTheme();
+
   const handleExploreClick = () => {
     const jobsSection = document.getElementById("jobs");
     if (jobsSection) {
@@ -13,18 +16,22 @@ export default function CtaBanner() {
   };
 
   return (
-    <section className="w-full flex justify-center py-12 md:py-16 px-4 bg-[#FFFFFF]">
+    <section className={`w-full flex justify-center py-12 md:py-16 px-4 transition-colors duration-300 ${
+      isDark ? "bg-[#060C16]" : "bg-[#FFFFFF]"
+    }`}>
       <div 
-        className="relative shrink-0 overflow-hidden w-full max-w-[1280px] aspect-[1280/315] shadow-sm"
+        className={`relative shrink-0 overflow-hidden w-full max-w-[1280px] aspect-[1280/315] transition-all duration-300 ${
+          isDark ? "shadow-2xl border border-white/10" : "shadow-sm border border-transparent"
+        }`}
         style={{ 
           borderRadius: "37px" 
         }}
       >
         <Image
-          src="/assets/image.png"
+          src={isDark ? "/assets/dark_cta_banner.png" : "/assets/image.png"}
           alt="Ready for what's next? Explore new opportunities, build your skills, and let's create a brighter future together."
           fill
-          className="object-cover"
+          className="object-cover transition-all duration-300"
           priority
           onError={(e) => {
             (e.target as HTMLImageElement).src = "https://via.placeholder.com/1280x315.png?text=Banner+Image";

@@ -4,17 +4,23 @@
   :root {
     --primary: #0066FF;
     --primary-dark: #0958A7;
-    --accent: #FDB813;
+    --accent: #FFBA26;
     --navy-900: #0A192F;
-    --navy-950: #060E1A;
-    --slate-bg: #F8FAFC;
-    --card-border: #E2E8F0;
+    --navy-950: #060C16;
+    --slate-bg: #060C16;
+    --card-border: rgba(255, 255, 255, 0.08);
+  }
+
+  body {
+    background-color: #060C16;
+    color: #FFFFFF;
   }
 }
 
 html {
   scroll-behavior: smooth;
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  background-color: #060C16;
 }
 
 /* Custom scrollbar */
@@ -24,16 +30,16 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #060C16;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #1E293B;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #334155;
 }
 
 /* Glassmorphic utilities */
@@ -55,7 +61,8 @@ html {
    (Physics-based refraction via Kube.io / Apple Liquid Glass technique)
    ========================================================================== */
 
-:root, :host { 
+:root,
+:host {
   --glass-frost: 0.08;
   --glass-saturation: 2.2;
   --filter-id: url(#glass-filter-_r_b_);
@@ -90,7 +97,7 @@ html {
   -webkit-backdrop-filter: blur(12px) saturate(var(--saturation, 200%));
   backdrop-filter: blur(12px) saturate(var(--saturation, 200%));
   backdrop-filter: blur(12px) url(#switcher) saturate(var(--saturation, 200%));
-  box-shadow: 
+  box-shadow:
     inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 18%, transparent),
     inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light) 90%, transparent),
     inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light) 80%, transparent),
@@ -137,7 +144,7 @@ html {
   z-index: 2;
   overflow: hidden;
   pointer-events: none;
-  box-shadow: 
+  box-shadow:
     inset 2px 2px 1px 0 rgba(255, 255, 255, 0.6),
     inset -1px -1px 1px 1px rgba(255, 255, 255, 0.4),
     inset 0 0 12px rgba(255, 255, 255, 0.3);
@@ -153,22 +160,21 @@ html {
 .liquid-glass-nav {
   position: relative;
   border-radius: 9999px;
-  background-color: color-mix(in srgb, var(--c-glass, #ffffff) calc(var(--nav-tint-opacity, 0.1) * 100%), transparent);
-  -webkit-backdrop-filter: blur(var(--nav-blur, 20px)) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
-  backdrop-filter: blur(var(--nav-blur, 20px)) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
-  backdrop-filter: blur(var(--nav-blur, 20px)) url(#liquid-glass-nav-filter) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
-  border: 0.5px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 
-    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 14%, transparent),
-    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light) 92%, transparent),
-    inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light) 75%, transparent),
-    inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light) 55%, transparent),
-    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--c-dark) 10%, transparent),
-    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
-    inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
-    inset 2px -6.5px 1px -4px color-mix(in srgb, var(--c-dark) 8%, transparent),
-    0px 2px 6px 0px color-mix(in srgb, var(--c-dark) 6%, transparent),
-    0px 16px 36px -4px color-mix(in srgb, var(--c-dark) 10%, transparent);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) calc(var(--nav-tint-opacity, 0.12) * 100%), transparent);
+  -webkit-backdrop-filter: blur(var(--nav-blur, 16px)) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
+  backdrop-filter: blur(var(--nav-blur, 16px)) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
+  -webkit-backdrop-filter: url(#liquid-glass-nav-filter);
+  backdrop-filter: url(#liquid-glass-nav-filter);
+  border: 0.5px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light, #ffffff) 18%, transparent),
+    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light, #ffffff) 92%, transparent),
+    inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light, #ffffff) calc(var(--bounce-opacity, 0.25) * 100%), transparent),
+    inset 0 0 var(--inner-shadow-blur, 16px) var(--inner-shadow-spread, 4px) rgba(255, 255, 255, 0.15),
+    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--c-dark, #000000) 10%, transparent),
+    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--c-dark, #000000) 16%, transparent),
+    0px 4px 16px 0px color-mix(in srgb, var(--c-dark, #000000) 8%, transparent),
+    0px 20px 45px -5px color-mix(in srgb, var(--c-dark, #000000) 12%, transparent);
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
@@ -182,12 +188,10 @@ html {
   pointer-events: none;
   z-index: 1;
   opacity: var(--nav-glow-opacity, 0.45);
-  background: radial-gradient(
-    circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.45) 0%,
-    rgba(255, 255, 255, 0.12) 40%,
-    transparent 75%
-  );
+  background: radial-gradient(circle 220px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 255, 255, calc(var(--specular-opacity, 0.5) * 0.9)) 0%,
+      rgba(255, 255, 255, calc(var(--specular-opacity, 0.5) * 0.25)) 35%,
+      transparent 75%);
   mix-blend-mode: overlay;
   transition: opacity 0.3s ease;
 }
@@ -204,22 +208,18 @@ html {
   pointer-events: none;
   z-index: 2;
   opacity: var(--nav-ridge-opacity, 1);
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.2) 0%,
-    rgba(255, 255, 255, 0.85) calc(var(--mouse-x, 50%) - 15%),
-    rgba(255, 255, 255, 1) var(--mouse-x, 50%),
-    rgba(255, 255, 255, 0.85) calc(var(--mouse-x, 50%) + 15%),
-    rgba(255, 255, 255, 0.2) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, calc(var(--specular-opacity, 0.5) * 1.5)) calc(var(--mouse-x, 50%) - 18%),
+      rgba(255, 255, 255, 1) var(--mouse-x, 50%),
+      rgba(255, 255, 255, calc(var(--specular-opacity, 0.5) * 1.5)) calc(var(--mouse-x, 50%) + 18%),
+      rgba(255, 255, 255, 0.15) 100%);
 }
 
 /* Active Segmented Glass Tab Slider inside Nav */
 .liquid-glass-tab-active {
   background-color: color-mix(in srgb, var(--c-glass, #ffffff) 38%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 
+  box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--c-light) 25%, transparent),
     inset 2px 1px 0px -1px color-mix(in srgb, var(--c-light) 90%, transparent),
     inset -1.5px -1px 0px -1px color-mix(in srgb, var(--c-light) 80%, transparent),
@@ -233,11 +233,14 @@ html {
 
 /* Floating Glass Island Pill for Logo on scroll */
 .liquid-glass-island {
+  position: relative;
   background-color: color-mix(in srgb, var(--c-glass, #ffffff) 22%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(var(--saturation, 180%)) contrast(105%);
   backdrop-filter: blur(16px) saturate(var(--saturation, 180%)) contrast(105%);
-  -webkit-backdrop-filter: blur(16px) saturate(var(--saturation, 180%));
+  -webkit-backdrop-filter: url(#liquid-glass-nav-filter);
+  backdrop-filter: url(#liquid-glass-nav-filter);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
+  box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.25),
     inset 1.5px 2px 0px -1px rgba(255, 255, 255, 0.85),
     inset -1px -1px 0px -1px rgba(255, 255, 255, 0.65),
@@ -253,17 +256,137 @@ html {
   background-color: color-mix(in srgb, var(--c-glass, #ffffff) 10%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(var(--saturation, 200%));
   backdrop-filter: blur(14px) saturate(var(--saturation, 200%));
-  backdrop-filter: blur(14px) url(#switcher) saturate(var(--saturation, 200%));
+  backdrop-filter: url(#switcher);
   border: 0.5px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 
+  box-shadow:
     inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 15%, transparent),
     inset 1.8px 2.5px 0px -1px color-mix(in srgb, var(--c-light) 88%, transparent),
-    inset -1.5px -1.5px 0px -1px color-mix(in srgb, var(--c-light) 70%, transparent),
+    inset -1.5px -1.5px 0px -1px color-mix(in srgb, var(--c-light) calc(var(--bounce-opacity, 0.25) * 100%), transparent),
     inset -2px -5px 1px -4px color-mix(in srgb, var(--c-light) 45%, transparent),
     inset -0.5px 1.5px 3px -1px color-mix(in srgb, var(--c-dark) 12%, transparent),
     0px 2px 8px 0px color-mix(in srgb, var(--c-dark) 5%, transparent);
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+}
+
+/* Light Mode: Enhanced Liquid Glass Orb with prominent shadow & crisp specular bevels */
+html:not(.dark) .liquid-glass-icon {
+  background-color: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    /* Outer physical glass shadows behind the icon */
+    0 10px 25px -4px rgba(9, 88, 167, 0.16),
+    0 4px 10px -1px rgba(0, 0, 0, 0.07),
+    0 1px 3px 0 rgba(0, 0, 0, 0.05),
+    /* Inner 3D specular highlight and bounce */
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.95),
+    inset 1.8px 2.5px 0px -1px rgba(255, 255, 255, 1),
+    inset -1.5px -1.5px 0px -1px rgba(255, 255, 255, 0.75),
+    inset -0.5px 1.5px 3px -1px rgba(9, 88, 167, 0.14);
+}
+
+/* Dark Mode: Retain authentic floating glass specular catch-lights on dark backgrounds */
+html.dark .liquid-glass-icon {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.15),
+    inset 1.8px 2.5px 0px -1px rgba(255, 255, 255, 0.88),
+    inset -1.5px -1.5px 0px -1px rgba(255, 255, 255, 0.25),
+    inset -0.5px 1.5px 3px -1px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Service 3D Liquid Glass Orb (Header-matched glass + 3D tactile elevation)
+   ========================================================================== */
+.service-glass-icon {
+  position: relative;
+  border-radius: 9999px;
+  -webkit-backdrop-filter: blur(16px) saturate(var(--saturation, 200%)) contrast(104%) brightness(105%);
+  backdrop-filter: blur(16px) saturate(var(--saturation, 200%)) contrast(104%) brightness(105%);
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Light Mode: Header-grade glass with deep tactile 3D elevation shadows behind the icon */
+html:not(.dark) .service-glass-icon {
+  background-color: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    /* Outer physical 3D elevation shadows behind the icon */
+    0 14px 28px -4px rgba(9, 88, 167, 0.22),
+    0 6px 14px -1px rgba(0, 0, 0, 0.10),
+    0 2px 4px 0 rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(9, 88, 167, 0.08),
+    /* Inner header-grade multi-layer specular bevels matching navbar */
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.95),
+    inset 1.8px 3px 0px -1px rgba(255, 255, 255, 1),
+    inset -2px -2px 0px -1px rgba(255, 255, 255, 0.75),
+    inset 0 0 14px 2px rgba(255, 255, 255, 0.35),
+    inset -0.5px 1.5px 4px -1px rgba(9, 88, 167, 0.15),
+    inset -1.5px 2.5px 0px -2px rgba(0, 0, 0, 0.08);
+}
+
+html:not(.dark) .group:hover .service-glass-icon {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow:
+    0 20px 40px -4px rgba(9, 88, 167, 0.32),
+    0 10px 18px -2px rgba(0, 0, 0, 0.14),
+    0 3px 6px 0 rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(9, 88, 167, 0.14),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 1),
+    inset 2px 3.5px 0px -1px rgba(255, 255, 255, 1),
+    inset -2px -2px 0px -1px rgba(255, 255, 255, 0.85),
+    inset 0 0 16px 3px rgba(255, 255, 255, 0.45);
+}
+
+/* Dark Mode: Header-grade glass with deep ambient 3D glow */
+html.dark .service-glass-icon {
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 14%, transparent);
+  border: 0.5px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    /* Outer 3D floating shadows */
+    0 10px 28px -2px rgba(0, 0, 0, 0.60),
+    0 4px 12px 0 rgba(0, 0, 0, 0.40),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    /* Inner header-grade multi-layer specular bevels */
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.25),
+    inset 1.8px 3px 0px -2px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 0px -2px rgba(255, 255, 255, 0.30),
+    inset 0 0 14px 2px rgba(255, 255, 255, 0.10),
+    inset -0.5px 1.5px 4px -1px rgba(0, 0, 0, 0.35),
+    inset -1.5px 2.5px 0px -2px rgba(0, 0, 0, 0.40);
+}
+
+html.dark .group:hover .service-glass-icon {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow:
+    0 14px 36px -2px rgba(0, 0, 0, 0.75),
+    0 6px 18px 0 rgba(56, 189, 248, 0.30),
+    0 0 0 1px rgba(56, 189, 248, 0.35),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.45),
+    inset 2px 3.5px 0px -1px rgba(255, 255, 255, 1),
+    inset -2px -2px 0px -1px rgba(255, 255, 255, 0.40),
+    inset 0 0 16px 3px rgba(56, 189, 248, 0.18);
+}
+
+/* 3D Top Curved Specular Rim Catch-light */
+.service-glass-icon::before {
+  content: "";
+  position: absolute;
+  top: 1.5px;
+  left: 6px;
+  right: 6px;
+  height: 14px;
+  border-radius: 9999px 9999px 40px 40px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.03) 100%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* 3. Liquid Glass Video Play Button (Physics-based convex dome lens) */
@@ -273,14 +396,14 @@ html {
   background-color: color-mix(in srgb, var(--c-glass, #ffffff) 8%, transparent);
   -webkit-backdrop-filter: blur(18px) saturate(var(--saturation, 200%));
   backdrop-filter: blur(18px) saturate(var(--saturation, 200%));
-  backdrop-filter: blur(18px) url(#switcher) saturate(var(--saturation, 200%));
+  backdrop-filter: url(#switcher);
   border: 0.5px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
+  box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.22),
     0 8px 20px rgba(0, 0, 0, 0.10),
     inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 18%, transparent),
     inset 2.5px 4px 0px -1px color-mix(in srgb, var(--c-light) 90%, transparent),
-    inset -2.5px -2.5px 0px -1px color-mix(in srgb, var(--c-light) 75%, transparent),
+    inset -2.5px -2.5px 0px -1px color-mix(in srgb, var(--c-light) calc(var(--bounce-opacity, 0.25) * 100%), transparent),
     inset -4px -10px 2px -6px color-mix(in srgb, var(--c-light) 55%, transparent),
     inset -1px 3px 5px -1px color-mix(in srgb, var(--c-dark) 16%, transparent),
     inset 0px -5px 2px -3px color-mix(in srgb, var(--c-dark) 8%, transparent);
@@ -299,7 +422,7 @@ html {
   background: hsl(0 0% 100% / var(--glass-frost, 0.15));
   -webkit-backdrop-filter: var(--filter-id, url(#glass-filter-_r_b_)) saturate(var(--glass-saturation, 1.2)) blur(10px);
   backdrop-filter: var(--filter-id, url(#glass-filter-_r_b_)) saturate(var(--glass-saturation, 1.2)) blur(10px);
-  box-shadow: 
+  box-shadow:
     0 12px 32px rgba(0, 0, 0, 0.12),
     inset 0 0 2px 1px rgba(255, 255, 255, 0.7),
     inset 2px 2px 1px 0 rgba(255, 255, 255, 0.6),
@@ -309,7 +432,7 @@ html {
 }
 
 .dock,
-.dock > div {
+.dock>div {
   border-radius: 2rem;
 }
 
@@ -318,7 +441,7 @@ html {
   border-radius: 2.5rem;
 }
 
-.dock:hover > div {
+.dock:hover>div {
   border-radius: 2.5rem;
 }
 
@@ -332,6 +455,7 @@ html {
 }
 
 @media (min-width: 640px) {
+
   .dock img,
   .dock .dock-item {
     width: 60px;
@@ -346,3 +470,17 @@ html {
 }
 
 
+@media (min-width: 640px) {
+
+  .dock img,
+  .dock .dock-item {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.dock img:hover,
+.dock .dock-item:hover {
+  transform: scale(1.12);
+  transform-origin: center bottom;
+}

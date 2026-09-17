@@ -4,26 +4,40 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Play, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function VideoSection() {
+  const { isDark } = useTheme();
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
     <section id="about" className="py-14 sm:py-20 bg-transparent overflow-hidden">
-      {/* Container - Matches Figma Frame 47 (width: 1438px, bg: #FFFFFF, radius: 16px) */}
+      {/* Container - Matches Figma Frame 47 (width: 1438px, radius: 16px) */}
       <div className="max-w-[1438px] mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="bg-white rounded-2xl sm:rounded-[24px] p-6 sm:p-10 lg:p-14 border border-slate-200/70 shadow-sm">
+        <div className={`rounded-2xl sm:rounded-[24px] p-6 sm:p-10 lg:p-14 border transition-colors duration-300 ${
+          isDark
+            ? "bg-[#0A111F] border-white/10 shadow-2xl"
+            : "bg-white border-slate-200/70 shadow-sm"
+        }`}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
             
             {/* Left Text Column - Matches Figma Frame 46 (width: 533px) */}
             <div className="lg:col-span-5 space-y-4 text-left">
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] font-bold text-[#262C31] tracking-tight leading-[40px] sm:leading-[50px]">
+              <h2 className={`font-serif text-3xl sm:text-4xl lg:text-[40px] font-bold tracking-tight leading-[40px] sm:leading-[50px] transition-colors duration-200 ${
+                isDark ? "text-white" : "text-[#262C31]"
+              }`}>
                 See what happens <br />
                 behind every <br />
-                opportunity.
+                {isDark ? (
+                  <span className="text-[#FFBA26]">opportunity.</span>
+                ) : (
+                  "opportunity."
+                )}
               </h2>
               
-              <p className="font-sans text-base sm:text-[18px] text-[#262C31] leading-[27px] max-w-[371px] pt-1">
+              <p className={`font-sans text-base sm:text-[18px] leading-[27px] max-w-[371px] pt-1 transition-colors duration-200 ${
+                isDark ? "text-[#94A3B8]" : "text-[#48525A]"
+              }`}>
                 Meet the people and process helping candidates move from application to
                 opportunity.
               </p>
@@ -36,18 +50,22 @@ export default function VideoSection() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="relative w-full aspect-[721/423] rounded-[24px] overflow-hidden group cursor-pointer border border-slate-100 shadow-md"
+                className={`relative w-full aspect-[721/423] rounded-[24px] overflow-hidden group cursor-pointer border transition-all duration-300 ${
+                  isDark ? "border-white/10 shadow-xl" : "border-slate-100 shadow-md"
+                }`}
                 onClick={() => setIsPlaying(true)}
               >
                 <Image
-                  src="/assets/video_thumbnail.png"
+                  src={isDark ? "/assets/dark_video_thumbnail.png" : "/assets/video_thumbnail.png"}
                   alt="Behind the scenes at Work Wise"
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 
                 {/* Subtle depth overlay */}
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors duration-300" />
+                <div className={`absolute inset-0 transition-colors duration-300 ${
+                  isDark ? "bg-black/20 group-hover:bg-black/10" : "bg-black/10 group-hover:bg-black/5"
+                }`} />
 
                 {/* 3D Liquid Glass Play Button - Matches Figma Buttons (136px × 136px) */}
                 <div className="absolute inset-0 flex items-center justify-center">

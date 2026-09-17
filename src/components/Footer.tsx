@@ -3,12 +3,17 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Footer() {
+  const { isDark } = useTheme();
+
   return (
     <footer 
       id="footer"
-      className="flex flex-col justify-center items-center w-full bg-[#022A57] overflow-hidden scroll-mt-10"
+      className={`flex flex-col justify-center items-center w-full overflow-hidden scroll-mt-10 transition-colors duration-300 ${
+        isDark ? "bg-[#060C16] border-t border-white/10" : "bg-[#022A57]"
+      }`}
       style={{ padding: "48px 80px", gap: "48px" }}
     >
       <div className="flex flex-col items-start w-full max-w-[1280px]" style={{ gap: "48px" }}>
@@ -35,7 +40,7 @@ export default function Footer() {
         </div>
 
         {/* Rectangle 11 (Separator) */}
-        <div className="w-full h-[1px] bg-[#C1C7CD]" />
+        <div className={`w-full h-[1px] transition-colors ${isDark ? "bg-white/10" : "bg-[#C1C7CD]"}`} />
 
         {/* Columns */}
         <div className="flex flex-col md:flex-row items-start w-full" style={{ gap: "48px" }}>
@@ -49,7 +54,13 @@ export default function Footer() {
             </div>
             {["Find Jobs", "Explore Companies", "How it Works", "Career Advice"].map((item) => (
               <div key={item} className="flex flex-row items-center">
-                <a href="#" className="text-[#FFFFFF] font-sans hover:text-[#C1C7CD] transition-colors" style={{ fontWeight: 500, fontSize: "16px", lineHeight: "24px" }}>
+                <a 
+                  href="#" 
+                  className={`font-sans transition-colors ${
+                    isDark ? "text-[#94A3B8] hover:text-white" : "text-[#FFFFFF] hover:text-[#C1C7CD]"
+                  }`} 
+                  style={{ fontWeight: 500, fontSize: "16px", lineHeight: "24px" }}
+                >
                   {item}
                 </a>
               </div>
@@ -65,7 +76,13 @@ export default function Footer() {
             </div>
             {["Post a Job", "Find Talent", "Employer Solutions", "Pricing"].map((item) => (
               <div key={item} className="flex flex-row items-center">
-                <a href="#" className="text-[#FFFFFF] font-sans hover:text-[#C1C7CD] transition-colors" style={{ fontWeight: 500, fontSize: "16px", lineHeight: "24px" }}>
+                <a 
+                  href="#" 
+                  className={`font-sans transition-colors ${
+                    isDark ? "text-[#94A3B8] hover:text-white" : "text-[#FFFFFF] hover:text-[#C1C7CD]"
+                  }`} 
+                  style={{ fontWeight: 500, fontSize: "16px", lineHeight: "24px" }}
+                >
                   {item}
                 </a>
               </div>
@@ -81,7 +98,13 @@ export default function Footer() {
             </div>
             {["About Us", "Careers", "Contact Us", "Newsroom"].map((item) => (
               <div key={item} className="flex flex-row items-center">
-                <a href="#" className="text-[#FFFFFF] font-sans hover:text-[#C1C7CD] transition-colors" style={{ fontWeight: 500, fontSize: "16px", lineHeight: "24px" }}>
+                <a 
+                  href="#" 
+                  className={`font-sans transition-colors ${
+                    isDark ? "text-[#94A3B8] hover:text-white" : "text-[#FFFFFF] hover:text-[#C1C7CD]"
+                  }`} 
+                  style={{ fontWeight: 500, fontSize: "16px", lineHeight: "24px" }}
+                >
                   {item}
                 </a>
               </div>
@@ -130,11 +153,11 @@ export default function Footer() {
         </div>
 
         {/* Rectangle 10 (Separator) */}
-        <div className="w-full h-[1px] bg-[#C1C7CD]" />
+        <div className={`w-full h-[1px] transition-colors ${isDark ? "bg-white/10" : "bg-[#C1C7CD]"}`} />
 
         {/* Bottom */}
         <div className="flex flex-row items-center w-full" style={{ gap: "48px" }}>
-          <p className="text-[#FFFFFF] font-sans w-full" style={{ fontWeight: 500, fontSize: "14px", lineHeight: "20px" }}>
+          <p className={`font-sans w-full transition-colors ${isDark ? "text-[#94A3B8]" : "text-[#FFFFFF]"}`} style={{ fontWeight: 500, fontSize: "14px", lineHeight: "20px" }}>
             Workwise @ 2026. All rights reserved.
           </p>
         </div>

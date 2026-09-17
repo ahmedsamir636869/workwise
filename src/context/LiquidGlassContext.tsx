@@ -49,6 +49,16 @@ export function LiquidGlassProvider({ children }: { children: React.ReactNode })
     root.style.setProperty("--nav-tint-opacity", String(cfg.navbar.tintOpacity));
     root.style.setProperty("--nav-sheen-opacity", String(cfg.navbar.sheenIntensity));
     root.style.setProperty("--nav-disp-scale", String(cfg.navbar.displacementScale));
+    root.style.setProperty("--refraction-distance", `${cfg.navbar.refractionDistance ?? 42}px`);
+    root.style.setProperty("--global-refraction-distance", `${cfg.global.refractionDistance ?? 45}px`);
+    root.style.setProperty("--bezel-width", `${cfg.navbar.bezelWidth ?? 26}px`);
+    root.style.setProperty("--specular-angle", `${cfg.navbar.specularAngle ?? -60}deg`);
+    root.style.setProperty("--specular-opacity", String(cfg.navbar.specularOpacity ?? 0.5));
+    root.style.setProperty("--specular-hardness", String(cfg.navbar.specularHardness ?? 14));
+    root.style.setProperty("--bounce-opacity", cfg.navbar.doubleRim ? String(cfg.navbar.bounceIntensity ?? 0.25) : "0");
+    root.style.setProperty("--dispersion-spread", `${cfg.navbar.dispersionSpread ?? 3.5}px`);
+    root.style.setProperty("--inner-shadow-blur", `${cfg.navbar.innerShadowBlur ?? 16}px`);
+    root.style.setProperty("--inner-shadow-spread", `${cfg.navbar.innerShadowSpread ?? 4}px`);
     root.style.setProperty("--dock-blur", `${cfg.global.dockBlur}px`);
     root.style.setProperty("--button-blur", `${cfg.global.buttonBlur}px`);
     root.style.setProperty("--global-contrast", `${cfg.global.contrastBoost}%`);
@@ -73,12 +83,12 @@ export function LiquidGlassProvider({ children }: { children: React.ReactNode })
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        setConfig((prev) => {
-          const merged = {
-            ...prev,
+        setConfig(() => {
+          const merged: LiquidGlassConfig = {
+            ...DEFAULT_CONFIG,
             ...parsed,
-            navbar: { ...prev.navbar, ...(parsed.navbar || {}) },
-            global: { ...prev.global, ...(parsed.global || {}) },
+            navbar: { ...DEFAULT_CONFIG.navbar, ...(parsed.navbar || {}) },
+            global: { ...DEFAULT_CONFIG.global, ...(parsed.global || {}) },
           };
           applyCssVariables(merged);
           return merged;

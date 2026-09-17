@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useId } from "react";
+import { useLiquidGlass } from "@/context/LiquidGlassContext";
 export { LiquidGlassFilter } from "./LiquidGlassOrb";
 
 interface LiquidGlassProps {
@@ -14,8 +15,7 @@ interface LiquidGlassProps {
   glassTintColor?: string;
   glassTintOpacity?: number;
   frostBlurRadius?: number;
-  noiseFrequency?: number;
-  noiseStrength?: number;
+  refractionDistance?: number;
   className?: string;
   style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
@@ -23,7 +23,7 @@ interface LiquidGlassProps {
 
 /**
  * LiquidGlass Component - iOS / VisionOS Apple-style Liquid Glass
- * Implements SVG turbulence distortion + Snell's Law specular inner reflections + backdrop blur
+ * Implements Snell's Law refraction, squircle bevel specular highlights, and backdrop blur
  */
 export default function LiquidGlass({
   children,
@@ -31,24 +31,29 @@ export default function LiquidGlass({
   height = 200,
   borderRadius = 28,
   innerShadowColor = "#ffffff",
-  innerShadowBlur = 17,
-  innerShadowSpread = 6,
-  glassTintColor = "rgba(255, 255, 255, 0.70)",
-  glassTintOpacity = 70,
-  frostBlurRadius = 24,
-  noiseFrequency = 0.011,
-  noiseStrength = 39,
+  innerShadowBlur,
+  innerShadowSpread,
+  glassTintColor,
+  glassTintOpacity,
+  frostBlurRadius,
+  refractionDistance,
   className = "",
   style,
   onClick,
 }: LiquidGlassProps) {
-  const filterId = useId().replace(/:/g, "_");
-  const filterName = `glass-distortion-${filterId}`;
+  const { config } = useLiquidGlass();
 
   // Parse width & height
   const w = typeof width === "number" ? `${width}px` : width;
   const h = typeof height === "number" ? `${height}px` : height;
   const r = `${borderRadius}px`;
+
+  // Resolved values with context fallback
+  const blur = frostBlurRadius ?? config.navbar.blur;
+  const tint = glassTintColor ?? config.navbar.tintColor;
+  const opacity = glassTintOpacity !== undefined ? glassTintOpacity / 100 : config.navbar.tintOpacity;
+  const sBlur = innerShadowBlur ?? config.navbar.innerShadowBlur;
+  const sSpread = innerShadowSpread ?? config.navbar.innerShadowSpread;
 
   return (
     <div
@@ -58,42 +63,17 @@ export default function LiquidGlass({
         width: w,
         height: h,
         borderRadius: r,
-        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.12), 0px 2px 8px rgba(0, 0, 0, 0.06)",
+        boxShadow: "0px 10px 32px rgba(0, 0, 0, 0.12), 0px 2px 8px rgba(0, 0, 0, 0.06)",
         ...style,
       }}
     >
-      {/* SVG Distortion Filter Definition for this instance */}
-      <svg className="absolute w-0 h-0 pointer-events-none opacity-0" aria-hidden="true">
-        <defs>
-          <filter id={filterName} x="0%" y="0%" width="100%" height="100%">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency={`${noiseFrequency} ${noiseFrequency}`}
-              numOctaves="2"
-              seed="92"
-              result="noise"
-            />
-            <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="blurred"
-              scale={noiseStrength}
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* Background Refraction & Frost Layer */}
+      {/* Background Refraction & Frost Layer using Apple SVG filter */}
       <div
         className="absolute inset-0 -z-10 pointer-events-none"
         style={{
           borderRadius: r,
-          backdropFilter: `blur(${frostBlurRadius}px) saturate(180%)`,
-          WebkitBackdropFilter: `blur(${frostBlurRadius}px) saturate(180%)`,
-          filter: `url(#${filterName})`,
-          WebkitFilter: `url(#${filterName})`,
+          backdropFilter: `blur(${blur}px) saturate(${config.navbar.saturation}%)`,
+          WebkitBackdropFilter: `blur(${blur}px) saturate(${config.navbar.saturation}%)`,
         }}
       />
 
@@ -102,21 +82,19 @@ export default function LiquidGlass({
         className="absolute inset-0 z-0 pointer-events-none"
         style={{
           borderRadius: r,
-          backgroundColor: glassTintColor.startsWith("rgba")
-            ? glassTintColor
-            : `rgba(255, 255, 255, ${glassTintOpacity / 100})`,
-          boxShadow: `inset 0 0 ${innerShadowBlur}px ${innerShadowSpread}px ${innerShadowColor}, inset 0 1px 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.08)`,
-          border: "0.5px solid rgba(255, 255, 255, 0.6)",
+          backgroundColor: tint.startsWith("rgba") ? tint : `color-mix(in srgb, ${tint} ${Math.round(opacity * 100)}%, transparent)`,
+          boxShadow: `inset 0 0 ${sBlur}px ${sSpread}px ${innerShadowColor}, inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.1)`,
+          border: "0.5px solid rgba(255, 255, 255, 0.5)",
         }}
       />
 
-      {/* Diagonal Specular Sheen Line */}
+      {/* Directional Specular Sheen Line */}
       <div
         className="absolute inset-0 pointer-events-none z-[1] opacity-40"
         style={{
           borderRadius: r,
           background:
-            "linear-gradient(125deg, transparent 30%, rgba(255, 255, 255, 0.6) 45%, rgba(255, 255, 255, 0.8) 48%, transparent 54%)",
+            "linear-gradient(125deg, transparent 32%, rgba(255, 255, 255, 0.45) 46%, rgba(255, 255, 255, 0.75) 49%, transparent 54%)",
         }}
       />
 

@@ -38,8 +38,8 @@ INSERT INTO public.liquid_glass_settings (name, preset_key, navbar, global, is_a
 SELECT 
   'Apple VisionOS (Default)',
   'visionos',
-  '{"blur": 20, "frost": 0.1, "saturation": 200, "tintColor": "#ffffff", "tintOpacity": 0.1, "sheenEnabled": true, "ridgeSpecular": true, "sheenIntensity": 0.45, "borderDarkColor": "#000000", "borderDarkOpacity": 0.16, "borderLightColor": "#ffffff", "displacementScale": 30, "borderLightOpacity": 0.4}'::jsonb,
-  '{"bezelRatio": 0.6, "dockBlur": 10, "dockFrost": 0.15, "thickness": 0.8, "buttonBlur": 14, "contrastBoost": 104, "brightnessBoost": 105, "refractiveIndex": 1.5, "saturationBoost": 2.2, "chromaticAberration": true}'::jsonb,
+  '{"blur": 22, "frost": 0.1, "saturation": 210, "tintColor": "#ffffff", "tintOpacity": 0.12, "sheenEnabled": true, "ridgeSpecular": true, "doubleRim": true, "bounceIntensity": 0.25, "sheenIntensity": 0.45, "borderDarkColor": "#000000", "borderDarkOpacity": 0.14, "borderLightColor": "#ffffff", "displacementScale": 38, "refractionDistance": 42, "surfaceProfile": "squircle", "bezelWidth": 26, "specularAngle": -60, "specularOpacity": 0.5, "specularHardness": 14, "specularSaturation": 4, "chromaticAberration": true, "dispersionSpread": 3.5, "innerShadowBlur": 16, "innerShadowSpread": 4, "borderLightOpacity": 0.5}'::jsonb,
+  '{"bezelRatio": 0.6, "dockBlur": 12, "dockFrost": 0.15, "thickness": 0.85, "refractionDistance": 45, "surfaceProfile": "squircle", "buttonBlur": 14, "contrastBoost": 104, "brightnessBoost": 105, "refractiveIndex": 1.52, "saturationBoost": 2.3, "chromaticAberration": true, "dispersionSpread": 3.5, "lightAngle": -60, "lightElevation": 55, "specularRoughness": 0.2, "specularSaturation": 5}'::jsonb,
   true
 WHERE NOT EXISTS (SELECT 1 FROM public.liquid_glass_settings);
 `;
