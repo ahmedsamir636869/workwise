@@ -51,166 +51,297 @@ html {
 }
 
 /* ==========================================================================
-   Apple Liquid Glass (iOS 26+ / VisionOS Specification & Figma Buttons)
+   Liquid Glass & Chromatic Aberration System
+   (Physics-based refraction via Kube.io / Apple Liquid Glass technique)
    ========================================================================== */
 
-/* 1. Liquid Glass Nav Capsule (Hero header) */
+:root, :host { 
+  --glass-frost: 0.08;
+  --glass-saturation: 2.2;
+  --filter-id: url(#glass-filter-_r_b_);
+  --c-glass: #ffffff;
+  --c-light: #ffffff;
+  --c-dark: #000000;
+  --glass-reflex-dark: 1;
+  --glass-reflex-light: 1;
+  --saturation: 200%;
+  --glass-ior: 1.5;
+}
+
+/* Base Liquid Glass Filter Container */
+.glass-surface__filter {
+  pointer-events: none;
+  opacity: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+/* User's Liquid Glass Signature Component */
+.liquidglass {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 340px;
+  height: 140px;
+  background-color: color-mix(in srgb, var(--c-glass) 8%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(12px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(12px) url(#switcher) saturate(var(--saturation, 200%));
+  box-shadow: 
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 18%, transparent),
+    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light) 90%, transparent),
+    inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light) 80%, transparent),
+    inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light) 60%, transparent),
+    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--c-dark) 10%, transparent),
+    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    0 10px 30px rgba(0, 0, 0, 0.10);
+  border-radius: 9999px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+/* Layered Liquid Glass Architecture */
+.liquidGlass-wrapper {
+  position: relative;
+  display: flex;
+  font-weight: 600;
+  overflow: hidden;
+  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.12), 0 0 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.liquidGlass-effect {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  backdrop-filter: url(#switcher) blur(4px) saturate(var(--glass-saturation, 2.2));
+  -webkit-backdrop-filter: url(#switcher) blur(4px) saturate(var(--glass-saturation, 2.2));
+  filter: url(#glass-distortion);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.liquidGlass-tint {
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.liquidGlass-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: 
+    inset 2px 2px 1px 0 rgba(255, 255, 255, 0.6),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+.liquidGlass-text {
+  position: relative;
+  z-index: 3;
+  color: #1a202c;
+}
+
+/* 1. Liquid Glass Nav Capsule (Physics-based refraction with Snell's Law displacement) */
 .liquid-glass-nav {
   position: relative;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  border: none;
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 10%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(var(--saturation, 200%)) contrast(104%) brightness(105%);
+  backdrop-filter: blur(20px) saturate(var(--saturation, 200%)) contrast(104%) brightness(105%);
+  backdrop-filter: blur(20px) url(#liquid-glass-nav-filter) saturate(var(--saturation, 200%)) contrast(104%) brightness(105%);
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
   box-shadow: 
-    /* Outer custom drop shadow representing the Figma layer */
-    0 10px 30px rgba(0, 0, 0, 0.2),
-    /* Combined Inset Shadows from Rect 3 and 11 */
-    inset 9px 9px 1.5px -10.5px #FFFFFF, 
-    inset 6px 6px 3px -6px #FFFFFF, 
-    inset -6px -6px 3px -6px #B3B3B3, 
-    inset 0px 0px 0px 3px rgba(153, 153, 153, 0.5), /* Inner border #999999 scaled */
-    inset 3px 0px 3px 1px rgba(0, 0, 0, 0.3), 
-    inset 0px -1px 2px 1px rgba(0, 0, 0, 0.1), 
-    inset 9px 9px 6.5px -7.5px #FFFFFF, 
-    inset 6px 9px 7px -6px #FFFFFF, 
-    inset -6px -6px 3px -6px #FFFFFF;
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 14%, transparent),
+    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light) 92%, transparent),
+    inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light) 75%, transparent),
+    inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light) 55%, transparent),
+    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--c-dark) 10%, transparent),
+    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    inset 2px -6.5px 1px -4px color-mix(in srgb, var(--c-dark) 8%, transparent),
+    0px 2px 6px 0px color-mix(in srgb, var(--c-dark) 6%, transparent),
+    0px 16px 36px -4px color-mix(in srgb, var(--c-dark) 10%, transparent);
   overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
-/* Simulate Rectangle 10 (Soft inner white bloom for header) */
+/* Dynamic Cursor Reflection Sheen (Shader iMouse specular equivalent) */
 .liquid-glass-nav::before {
   content: "";
   position: absolute;
-  inset: -4px; 
+  inset: 0;
   border-radius: inherit;
-  background: #FFFFFF;
-  opacity: 0.5;
-  filter: blur(25px);
   pointer-events: none;
   z-index: 1;
+  opacity: var(--nav-glow-opacity, 0.45);
+  background: radial-gradient(
+    circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.12) 40%,
+    transparent 75%
+  );
+  mix-blend-mode: overlay;
+  transition: opacity 0.3s ease;
 }
 
-/* Simulate Rectangles 4, 7, 8, 9 (Lighter blend mode overlays) */
+/* Top Edge Specular Ridge Catch-light tracking cursor horizontally */
 .liquid-glass-nav::after {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.05);
-  mix-blend-mode: plus-lighter;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  border-radius: 9999px 9999px 0 0;
   pointer-events: none;
   z-index: 2;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.85) calc(var(--mouse-x, 50%) - 15%),
+    rgba(255, 255, 255, 1) var(--mouse-x, 50%),
+    rgba(255, 255, 255, 0.85) calc(var(--mouse-x, 50%) + 15%),
+    rgba(255, 255, 255, 0.2) 100%
+  );
 }
 
-/* 2. Liquid Glass Circular Dome Orb (48px Service Icons, 40px Theme Toggle) */
+/* Active Segmented Glass Tab Slider inside Nav */
+.liquid-glass-tab-active {
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 38%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 
+    inset 0 0 0 1px color-mix(in srgb, var(--c-light) 25%, transparent),
+    inset 2px 1px 0px -1px color-mix(in srgb, var(--c-light) 90%, transparent),
+    inset -1.5px -1px 0px -1px color-mix(in srgb, var(--c-light) 80%, transparent),
+    inset -2px -6px 1px -5px color-mix(in srgb, var(--c-light) 60%, transparent),
+    inset -1px 2px 3px -1px color-mix(in srgb, var(--c-dark) 15%, transparent),
+    inset 0px -4px 1px -2px color-mix(in srgb, var(--c-dark) 8%, transparent),
+    0px 3px 8px 0px color-mix(in srgb, var(--c-dark) 8%, transparent);
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+}
+
+/* Floating Glass Island Pill for Logo on scroll */
+.liquid-glass-island {
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 22%, transparent);
+  backdrop-filter: blur(16px) saturate(var(--saturation, 180%)) contrast(105%);
+  -webkit-backdrop-filter: blur(16px) saturate(var(--saturation, 180%));
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+    inset 1.5px 2px 0px -1px rgba(255, 255, 255, 0.85),
+    inset -1px -1px 0px -1px rgba(255, 255, 255, 0.65),
+    0px 6px 18px rgba(0, 0, 0, 0.08);
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+/* 2. Liquid Glass Circular Dome Orb (Physics-based convex squircle refraction) */
 .liquid-glass-icon {
   position: relative;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 10%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(14px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(14px) url(#switcher) saturate(var(--saturation, 200%));
+  border: 0.5px solid rgba(255, 255, 255, 0.45);
   box-shadow: 
-    /* Shadows from user's Rectangle 3 and 11 */
-    inset 9px 9px 1.5px -10.5px #FFFFFF, 
-    inset 6px 6px 3px -6px #FFFFFF, 
-    inset -6px -6px 3px -6px #B3B3B3, 
-    inset 0px 0px 0px 1.5px rgba(153, 153, 153, 0.6), /* Scaled down 3px #999999 */
-    inset 3px 0px 3px 1px rgba(0, 0, 0, 0.25), 
-    inset 0px -1px 2px 1px rgba(0, 0, 0, 0.1), 
-    inset 9px 9px 6.5px -7.5px #FFFFFF, 
-    inset 6px 9px 7px -6px #FFFFFF, 
-    inset -6px -6px 3px -6px #FFFFFF,
-    /* Outer custom drop shadow representing the Figma layer */
-    0 8px 24px rgba(0, 0, 0, 0.12);
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 15%, transparent),
+    inset 1.8px 2.5px 0px -1px color-mix(in srgb, var(--c-light) 88%, transparent),
+    inset -1.5px -1.5px 0px -1px color-mix(in srgb, var(--c-light) 70%, transparent),
+    inset -2px -5px 1px -4px color-mix(in srgb, var(--c-light) 45%, transparent),
+    inset -0.5px 1.5px 3px -1px color-mix(in srgb, var(--c-dark) 12%, transparent),
+    0px 2px 8px 0px color-mix(in srgb, var(--c-dark) 5%, transparent);
   overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 }
 
-/* Simulate Rectangle 10 (Soft inner blurry bloom) */
-.liquid-glass-icon::before {
-  content: "";
-  position: absolute;
-  inset: -2px; /* Slight overflow to match left/right bounds in Figma */
-  border-radius: inherit;
-  background: #E1E1E1;
-  opacity: 0.5;
-  filter: blur(10px); /* Scaled down from 25px for 48px size */
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Simulate Rectangles 4, 7, 8, 9 (Lighter blend mode overlays) */
-.liquid-glass-icon::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.05);
-  mix-blend-mode: plus-lighter;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* 3. Liquid Glass Video Play Button (136px Refractive Disc) */
+/* 3. Liquid Glass Video Play Button (Physics-based convex dome lens) */
 .liquid-glass-play {
   position: relative;
   border-radius: 9999px;
-  background: radial-gradient(
-    130% 130% at 30% 25%,
-    rgba(255, 255, 255, 0.52) 0%,
-    rgba(255, 255, 255, 0.14) 50%,
-    rgba(215, 228, 245, 0.24) 100%
-  );
-  backdrop-filter: blur(24px) saturate(190%) contrast(105%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(105%);
-  border: 2px solid rgba(255, 255, 255, 0.95);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 8%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(18px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(18px) url(#switcher) saturate(var(--saturation, 200%));
+  border: 0.5px solid rgba(255, 255, 255, 0.5);
   box-shadow: 
-    0 20px 50px rgba(0, 0, 0, 0.28),
-    0 6px 18px rgba(0, 0, 0, 0.15),
-    inset 0 2px 3px rgba(255, 255, 255, 1),
-    inset 6px 6px 14px rgba(255, 255, 255, 0.95),
-    inset 0 0 0 2.5px rgba(150, 160, 175, 0.45),
-    inset -6px -6px 14px rgba(0, 0, 0, 0.32);
+    0 24px 60px rgba(0, 0, 0, 0.22),
+    0 8px 20px rgba(0, 0, 0, 0.10),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 18%, transparent),
+    inset 2.5px 4px 0px -1px color-mix(in srgb, var(--c-light) 90%, transparent),
+    inset -2.5px -2.5px 0px -1px color-mix(in srgb, var(--c-light) 75%, transparent),
+    inset -4px -10px 2px -6px color-mix(in srgb, var(--c-light) 55%, transparent),
+    inset -1px 3px 5px -1px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    inset 0px -5px 2px -3px color-mix(in srgb, var(--c-dark) 8%, transparent);
   overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 }
 
-/* Upper-left large specular light reflection arc */
-.liquid-glass-play::before {
-  content: "";
-  position: absolute;
-  top: 10px;
-  left: 20px;
-  width: 60px;
-  height: 30px;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.35) 60%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: rotate(-28deg);
-  pointer-events: none;
-  z-index: 2;
+/* 4. Interactive Liquid Glass Dock */
+.dock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 2rem;
+  padding: 0.6rem;
+  background: hsl(0 0% 100% / var(--glass-frost, 0.15));
+  -webkit-backdrop-filter: var(--filter-id, url(#glass-filter-_r_b_)) saturate(var(--glass-saturation, 1.2)) blur(10px);
+  backdrop-filter: var(--filter-id, url(#glass-filter-_r_b_)) saturate(var(--glass-saturation, 1.2)) blur(10px);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    inset 0 0 2px 1px rgba(255, 255, 255, 0.7),
+    inset 2px 2px 1px 0 rgba(255, 255, 255, 0.6),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
-/* Bottom secondary bounce reflection */
-.liquid-glass-play::after {
-  content: "";
-  position: absolute;
-  bottom: 12px;
-  right: 22px;
-  width: 44px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(255, 255, 255, 0) 70%
-  );
-  transform: rotate(-28deg);
-  pointer-events: none;
-  z-index: 2;
+.dock,
+.dock > div {
+  border-radius: 2rem;
+}
+
+.dock:hover {
+  padding: 0.8rem;
+  border-radius: 2.5rem;
+}
+
+.dock:hover > div {
+  border-radius: 2.5rem;
+}
+
+.dock img,
+.dock .dock-item {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .dock img,
+  .dock .dock-item {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.dock img:hover,
+.dock .dock-item:hover {
+  transform: scale(1.12);
+  transform-origin: center bottom;
 }
 
 

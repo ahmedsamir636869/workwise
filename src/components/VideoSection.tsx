@@ -46,21 +46,13 @@ export default function VideoSection() {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 
-                {/* Translucent overlay matching Figma Rectangle 13 */}
-                <div className="absolute inset-0 bg-white/20 group-hover:bg-white/10 transition-colors duration-300" />
+                {/* Subtle depth overlay */}
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors duration-300" />
 
                 {/* 3D Liquid Glass Play Button - Matches Figma Buttons (136px × 136px) */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="liquid-glass-play w-20 h-20 sm:w-[120px] sm:h-[120px] lg:w-[136px] lg:h-[136px] flex items-center justify-center group-hover:scale-105 transition-all duration-300 select-none relative overflow-hidden">
-                    {/* Diagonal Optical Glass Lens Reflection Streak */}
-                    <div
-                      className="absolute inset-0 pointer-events-none rounded-full z-[3] opacity-60"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, transparent 20%, rgba(255, 255, 255, 0.4) 38%, rgba(255, 255, 255, 0.8) 44%, transparent 56%)",
-                      }}
-                    />
-                    <Play className="w-8 h-8 sm:w-11 sm:h-11 lg:w-14 lg:h-14 text-white fill-white translate-x-1 drop-shadow-sm relative z-10" />
+                  <div className="liquid-glass-play w-20 h-20 sm:w-[120px] sm:h-[120px] lg:w-[136px] lg:h-[136px] flex items-center justify-center group-hover:scale-105 transition-all duration-300 select-none relative overflow-hidden cursor-pointer">
+                    <Play className="w-8 h-8 sm:w-11 sm:h-11 lg:w-14 lg:h-14 text-white fill-white translate-x-1 drop-shadow-md relative z-10" />
                   </div>
                 </div>
               </motion.div>

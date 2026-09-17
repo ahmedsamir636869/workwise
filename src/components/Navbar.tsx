@@ -53,7 +53,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             href="/"
             className={`pointer-events-auto flex items-center gap-2.5 group shrink-0 transition-all duration-300 ${
               isScrolled
-                ? "px-4 py-2 rounded-full bg-white/85 backdrop-blur-md border border-white/90 shadow-sm hover:bg-white"
+                ? "px-4 py-2 rounded-full liquid-glass-island shadow-sm"
                 : "px-1 py-1"
             }`}
           >
@@ -71,12 +71,22 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             </span>
           </Link>
 
-          {/* Desktop Center Navigation Capsule - Floating liquid glass island */}
+          {/* Desktop Center Navigation Capsule - Floating liquid glass island with dynamic reflection */}
           <nav
-            className="liquid-glass-nav pointer-events-auto hidden md:flex items-center relative w-[532px] h-[70px] select-none"
+            onMouseMove={handleNavMouseMove}
+            onMouseEnter={() => setIsNavHovered(true)}
+            onMouseLeave={() => setIsNavHovered(false)}
+            style={
+              {
+                "--mouse-x": `${mousePos.x}%`,
+                "--mouse-y": `${mousePos.y}%`,
+                "--nav-glow-opacity": isNavHovered ? "0.85" : "0.45",
+              } as React.CSSProperties
+            }
+            className="liquid-glass-nav pointer-events-auto hidden md:flex items-center justify-center relative max-w-[532px] w-full h-[64px] lg:h-[70px] px-3 select-none"
           >
-            {/* Content Container Frame 4 (left 12px, gap 40px) */}
-            <div className="relative z-10 flex items-center gap-[40px] pl-[12px] w-full h-full">
+            {/* Content Container Frame 4 (responsive padding and gap) */}
+            <div className="relative z-10 flex items-center justify-between gap-[20px] lg:gap-[40px] px-2 w-full h-full">
               
               {/* Tab - Active Home Capsule */}
               <a
@@ -86,17 +96,17 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                   setActiveTab("Home");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className={`flex items-center justify-center w-[75px] h-[50px] rounded-[40px] transition-all duration-200 ${
+                className={`flex items-center justify-center w-[70px] lg:w-[75px] h-[44px] lg:h-[50px] rounded-[40px] transition-all duration-200 ${
                   activeTab === "Home"
-                    ? "bg-[#D8D8D8] text-[#0958A7] font-semibold"
+                    ? "liquid-glass-tab-active text-[#0958A7] font-semibold"
                     : "text-[#48525A] hover:text-[#0958A7] font-medium"
-                } font-sans text-[14px] leading-[21px]`}
+                } font-sans text-[13px] lg:text-[14px] leading-[21px]`}
               >
                 Home
               </a>
 
-              {/* Frame 3: Inactive links with 40px gap */}
-              <div className="flex items-center gap-[40px]">
+              {/* Frame 3: Inactive links with responsive gap */}
+              <div className="flex items-center gap-[20px] lg:gap-[40px]">
                 {navItems.map((item) => {
                   const isActive = activeTab === item.name;
                   return (
@@ -104,9 +114,9 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
                       key={item.name}
                       href={item.href}
                       onClick={() => setActiveTab(item.name)}
-                      className={`font-sans text-[14px] leading-[21px] transition-colors ${
+                      className={`font-sans text-[13px] lg:text-[14px] leading-[21px] transition-all whitespace-nowrap ${
                         isActive
-                          ? "bg-[#D8D8D8] text-[#0958A7] font-semibold flex items-center justify-center h-[50px] px-4 rounded-[40px]"
+                          ? "liquid-glass-tab-active text-[#0958A7] font-semibold flex items-center justify-center h-[44px] lg:h-[50px] px-3 lg:px-4"
                           : "text-[#48525A] hover:text-[#0958A7] font-medium"
                       }`}
                     >
@@ -124,7 +134,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
               aria-label="Toggle Theme"
-              className="liquid-glass-icon w-[40px] h-[40px] flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0 select-none"
+              className="liquid-glass-icon w-[40px] h-[40px] flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0 select-none cursor-pointer"
             >
               {isDarkMode ? (
                 <Moon className="w-[20px] h-[20px] text-[#262C31]" />
@@ -136,7 +146,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             {/* Login Button - Standalone floating glass pill */}
             <button
               onClick={() => onOpenAuth?.("login")}
-              className="w-[72px] h-[40px] text-[14px] font-semibold text-[#0958A7] rounded-[33px] border border-[#0958A7] bg-white/80 backdrop-blur-md hover:bg-[#0958A7]/10 transition-all duration-200 flex items-center justify-center shrink-0 shadow-sm"
+              className="w-[72px] h-[40px] text-[14px] font-semibold text-[#0958A7] rounded-[33px] border border-white/60 bg-white/30 backdrop-blur-md hover:bg-white/50 active:scale-95 transition-all duration-200 flex items-center justify-center shrink-0 shadow-sm cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]"
             >
               Login
             </button>
@@ -144,7 +154,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
             {/* Sign Up Button - Standalone floating action pill */}
             <button
               onClick={() => onOpenAuth?.("signup")}
-              className="w-[86px] h-[40px] text-[14px] font-semibold text-white bg-[#0958A7] hover:bg-[#074787] rounded-[33px] shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center shrink-0"
+              className="w-[84px] h-[40px] text-[14px] font-semibold text-[#FFFFFF] rounded-[33px] bg-[#0958A7] hover:bg-[#074787] active:scale-95 transition-all duration-200 flex items-center justify-center shrink-0 shadow-sm hover:shadow-md cursor-pointer"
             >
               Sign Up
             </button>
@@ -154,16 +164,17 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           <div className="pointer-events-auto flex md:hidden items-center gap-2">
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-[#262C31] shadow-sm"
+              aria-label="Toggle Theme"
+              className="liquid-glass-icon w-9 h-9 flex items-center justify-center shrink-0 select-none cursor-pointer text-[#262C31]"
             >
-              {isDarkMode ? <Moon className="w-4 h-4" /> : <span className="text-xs">☀️</span>}
+              {isDarkMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-[#262C31] bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm"
+              className="liquid-glass-icon w-9 h-9 flex items-center justify-center text-[#262C31] cursor-pointer"
               aria-label="Open navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
