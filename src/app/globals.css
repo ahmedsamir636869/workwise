@@ -68,198 +68,281 @@ html {
   --glass-ior: 1.5;
 }
 
-/* ==========================================================================
-   Apple-Style Liquid Glass System (liquid-glass.pro)
-   ========================================================================== */
-
-/* Base SVG filter container (hidden) */
+/* Base Liquid Glass Filter Container */
 .glass-surface__filter {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
   pointer-events: none;
-}
-
-/* 1. Core Liquid Glass Element (Apple Frosted Glass Specification) */
-.liquid-glass {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 28px;
-  background-color: rgba(255, 255, 255, 0.68);
-  backdrop-filter: blur(28px) saturate(190%) contrast(104%) brightness(108%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%) contrast(104%) brightness(108%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 
-    0 24px 48px -12px rgba(10, 30, 60, 0.16),
-    0 8px 24px -4px rgba(10, 30, 60, 0.08),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
-    inset 1.5px 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.06),
-    inset 0 0 20px 4px rgba(255, 255, 255, 0.45);
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
-}
-
-.liquid-glass:focus {
-  outline: none;
-}
-
-/* Diagonal Specular Sheen (Curved Optical Lens Glare) */
-.liquid-glass::before {
-  content: '';
+  opacity: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.65) 0%,
-    rgba(255, 255, 255, 0.22) 38%,
-    transparent 55%,
-    rgba(255, 255, 255, 0.35) 100%
-  );
-  pointer-events: none;
-  z-index: 1;
 }
 
-.glass-text {
+/* User's Liquid Glass Signature Component */
+.liquidglass {
   position: relative;
-  z-index: 10;
-  color: #262c31;
+  z-index: 1;
+  width: 100%;
+  max-width: 340px;
+  height: 140px;
+  background-color: color-mix(in srgb, var(--c-glass) 8%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(12px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(12px) url(#switcher) saturate(var(--saturation, 200%));
+  box-shadow: 
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 18%, transparent),
+    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light) 90%, transparent),
+    inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light) 80%, transparent),
+    inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light) 60%, transparent),
+    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--c-dark) 10%, transparent),
+    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    0 10px 30px rgba(0, 0, 0, 0.10);
+  border-radius: 9999px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
-/* 2. Liquid Glass Navbar Capsule */
+/* Layered Liquid Glass Architecture */
+.liquidGlass-wrapper {
+  position: relative;
+  display: flex;
+  font-weight: 600;
+  overflow: hidden;
+  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.12), 0 0 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.liquidGlass-effect {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  backdrop-filter: url(#switcher) blur(4px) saturate(var(--glass-saturation, 2.2));
+  -webkit-backdrop-filter: url(#switcher) blur(4px) saturate(var(--glass-saturation, 2.2));
+  filter: url(#glass-distortion);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.liquidGlass-tint {
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.liquidGlass-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: 
+    inset 2px 2px 1px 0 rgba(255, 255, 255, 0.6),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+.liquidGlass-text {
+  position: relative;
+  z-index: 3;
+  color: #1a202c;
+}
+
+/* 1. Liquid Glass Nav Capsule (Physics-based refraction with Snell's Law displacement) */
 .liquid-glass-nav {
   position: relative;
-  isolation: isolate;
   border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(32px) saturate(190%) contrast(104%) brightness(108%);
-  -webkit-backdrop-filter: blur(32px) saturate(190%) contrast(104%) brightness(108%);
-  border: 1px solid rgba(255, 255, 255, 0.88);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) calc(var(--nav-tint-opacity, 0.1) * 100%), transparent);
+  -webkit-backdrop-filter: blur(var(--nav-blur, 20px)) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
+  backdrop-filter: blur(var(--nav-blur, 20px)) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
+  backdrop-filter: blur(var(--nav-blur, 20px)) url(#liquid-glass-nav-filter) saturate(var(--saturation, 200%)) contrast(var(--global-contrast, 104%)) brightness(var(--global-brightness, 105%));
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
   box-shadow: 
-    0 16px 36px -8px rgba(10, 30, 60, 0.12),
-    0 4px 12px -2px rgba(10, 30, 60, 0.06),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.05),
-    inset 0 0 18px 2px rgba(255, 255, 255, 0.45);
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 14%, transparent),
+    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light) 92%, transparent),
+    inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light) 75%, transparent),
+    inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light) 55%, transparent),
+    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--c-dark) 10%, transparent),
+    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    inset 2px -6.5px 1px -4px color-mix(in srgb, var(--c-dark) 8%, transparent),
+    0px 2px 6px 0px color-mix(in srgb, var(--c-dark) 6%, transparent),
+    0px 16px 36px -4px color-mix(in srgb, var(--c-dark) 10%, transparent);
+  overflow: hidden;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
+/* Dynamic Cursor Reflection Sheen (Shader iMouse specular equivalent) */
 .liquid-glass-nav::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.15) 45%,
-    transparent 100%
-  );
   pointer-events: none;
   z-index: 1;
+  opacity: var(--nav-glow-opacity, 0.45);
+  background: radial-gradient(
+    circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.12) 40%,
+    transparent 75%
+  );
+  mix-blend-mode: overlay;
+  transition: opacity 0.3s ease;
 }
 
-/* Active Segmented Glass Tab inside Nav */
+/* Top Edge Specular Ridge Catch-light tracking cursor horizontally */
+.liquid-glass-nav::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  border-radius: 9999px 9999px 0 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--nav-ridge-opacity, 1);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.85) calc(var(--mouse-x, 50%) - 15%),
+    rgba(255, 255, 255, 1) var(--mouse-x, 50%),
+    rgba(255, 255, 255, 0.85) calc(var(--mouse-x, 50%) + 15%),
+    rgba(255, 255, 255, 0.2) 100%
+  );
+}
+
+/* Active Segmented Glass Tab Slider inside Nav */
 .liquid-glass-tab-active {
-  position: relative;
-  isolation: isolate;
-  border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.92);
-  border: 0.5px solid rgba(255, 255, 255, 1);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 38%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 
-    0 4px 12px rgba(9, 88, 167, 0.12),
-    inset 0 1px 1px rgba(255, 255, 255, 1),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.04);
+    inset 0 0 0 1px color-mix(in srgb, var(--c-light) 25%, transparent),
+    inset 2px 1px 0px -1px color-mix(in srgb, var(--c-light) 90%, transparent),
+    inset -1.5px -1px 0px -1px color-mix(in srgb, var(--c-light) 80%, transparent),
+    inset -2px -6px 1px -5px color-mix(in srgb, var(--c-light) 60%, transparent),
+    inset -1px 2px 3px -1px color-mix(in srgb, var(--c-dark) 15%, transparent),
+    inset 0px -4px 1px -2px color-mix(in srgb, var(--c-dark) 8%, transparent),
+    0px 3px 8px 0px color-mix(in srgb, var(--c-dark) 8%, transparent);
+  border-radius: 9999px;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 }
 
 /* Floating Glass Island Pill for Logo on scroll */
 .liquid-glass-island {
-  position: relative;
-  isolation: isolate;
-  border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(28px) saturate(190%) contrast(104%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.90);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 22%, transparent);
+  backdrop-filter: blur(16px) saturate(var(--saturation, 180%)) contrast(105%);
+  -webkit-backdrop-filter: blur(16px) saturate(var(--saturation, 180%));
+  border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 
-    0 8px 24px -4px rgba(10, 30, 60, 0.10),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+    inset 1.5px 2px 0px -1px rgba(255, 255, 255, 0.85),
+    inset -1px -1px 0px -1px rgba(255, 255, 255, 0.65),
+    0px 6px 18px rgba(0, 0, 0, 0.08);
+  border-radius: 9999px;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
-/* 3. Liquid Glass Circular Icon / Dome Orb (Services, theme toggle, etc.) */
+/* 2. Liquid Glass Circular Dome Orb (Physics-based convex squircle refraction) */
 .liquid-glass-icon {
   position: relative;
-  isolation: isolate;
   border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.90);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 10%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(14px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(14px) url(#switcher) saturate(var(--saturation, 200%));
+  border: 0.5px solid rgba(255, 255, 255, 0.45);
   box-shadow: 
-    0 8px 20px -4px rgba(10, 30, 60, 0.12),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 0 10px rgba(255, 255, 255, 0.55);
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 15%, transparent),
+    inset 1.8px 2.5px 0px -1px color-mix(in srgb, var(--c-light) 88%, transparent),
+    inset -1.5px -1.5px 0px -1px color-mix(in srgb, var(--c-light) 70%, transparent),
+    inset -2px -5px 1px -4px color-mix(in srgb, var(--c-light) 45%, transparent),
+    inset -0.5px 1.5px 3px -1px color-mix(in srgb, var(--c-dark) 12%, transparent),
+    0px 2px 8px 0px color-mix(in srgb, var(--c-dark) 5%, transparent);
+  overflow: hidden;
   transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 }
 
-.liquid-glass-icon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle at 35% 30%,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 255, 255, 0.25) 60%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* 4. Liquid Glass Video Play Button (Refractive Convex Lens) */
+/* 3. Liquid Glass Video Play Button (Physics-based convex dome lens) */
 .liquid-glass-play {
   position: relative;
-  isolation: isolate;
   border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.40);
-  backdrop-filter: blur(30px) saturate(200%) contrast(106%) brightness(110%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%) contrast(106%) brightness(110%);
-  border: 1.5px solid rgba(255, 255, 255, 0.90);
+  background-color: color-mix(in srgb, var(--c-glass, #ffffff) 8%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(18px) saturate(var(--saturation, 200%));
+  backdrop-filter: blur(18px) url(#switcher) saturate(var(--saturation, 200%));
+  border: 0.5px solid rgba(255, 255, 255, 0.5);
   box-shadow: 
-    0 24px 60px rgba(0, 0, 0, 0.25),
-    0 8px 20px rgba(0, 0, 0, 0.12),
-    inset 0 2px 2px 0 rgba(255, 255, 255, 1),
-    inset 0 -2px 2px 0 rgba(0, 0, 0, 0.10),
-    inset 0 0 30px rgba(255, 255, 255, 0.65);
+    0 24px 60px rgba(0, 0, 0, 0.22),
+    0 8px 20px rgba(0, 0, 0, 0.10),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--c-light) 18%, transparent),
+    inset 2.5px 4px 0px -1px color-mix(in srgb, var(--c-light) 90%, transparent),
+    inset -2.5px -2.5px 0px -1px color-mix(in srgb, var(--c-light) 75%, transparent),
+    inset -4px -10px 2px -6px color-mix(in srgb, var(--c-light) 55%, transparent),
+    inset -1px 3px 5px -1px color-mix(in srgb, var(--c-dark) 16%, transparent),
+    inset 0px -5px 2px -3px color-mix(in srgb, var(--c-dark) 8%, transparent);
+  overflow: hidden;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 }
 
-.liquid-glass-play::before {
-  content: '';
-  position: absolute;
-  top: 10%;
-  left: 15%;
-  width: 50%;
-  height: 35%;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.35) 60%,
-    transparent 100%
-  );
-  transform: rotate(-25deg);
-  pointer-events: none;
-  z-index: 2;
+/* 4. Interactive Liquid Glass Dock */
+.dock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 2rem;
+  padding: 0.6rem;
+  background: hsl(0 0% 100% / var(--glass-frost, 0.15));
+  -webkit-backdrop-filter: var(--filter-id, url(#glass-filter-_r_b_)) saturate(var(--glass-saturation, 1.2)) blur(10px);
+  backdrop-filter: var(--filter-id, url(#glass-filter-_r_b_)) saturate(var(--glass-saturation, 1.2)) blur(10px);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    inset 0 0 2px 1px rgba(255, 255, 255, 0.7),
+    inset 2px 2px 1px 0 rgba(255, 255, 255, 0.6),
+    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 }
 
+.dock,
+.dock > div {
+  border-radius: 2rem;
+}
+
+.dock:hover {
+  padding: 0.8rem;
+  border-radius: 2.5rem;
+}
+
+.dock:hover > div {
+  border-radius: 2.5rem;
+}
+
+.dock img,
+.dock .dock-item {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .dock img,
+  .dock .dock-item {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.dock img:hover,
+.dock .dock-item:hover {
+  transform: scale(1.12);
+  transform-origin: center bottom;
+}
 
 

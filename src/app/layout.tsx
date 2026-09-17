@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { LiquidGlassFilter } from "@/components/LiquidGlass";
+import { LiquidGlassFilter } from "@/components/LiquidGlassOrb";
+import { LiquidGlassProvider } from "@/context/LiquidGlassContext";
+import LiquidGlassCMSDrawer from "@/components/LiquidGlassCMS/LiquidGlassCMSDrawer";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,9 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} ${playfair.variable}`}>
       <body className="min-h-screen bg-[#F3F8FF] text-slate-900 antialiased selection:bg-[#0958A7] selection:text-white">
-        {/* Global Liquid Glass Optical Refraction Filter */}
-        <LiquidGlassFilter />
-        {children}
+        <LiquidGlassProvider>
+          {/* Global Liquid Glass Optical Refraction Filter */}
+          <LiquidGlassFilter />
+          {children}
+          {/* Floating Liquid Glass CMS Control Widget */}
+          <LiquidGlassCMSDrawer />
+        </LiquidGlassProvider>
       </body>
     </html>
   );

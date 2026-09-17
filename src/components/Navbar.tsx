@@ -4,12 +4,14 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Moon, Sun, Menu, X } from "lucide-react";
+import { useLiquidGlass } from "@/context/LiquidGlassContext";
 
 interface NavbarProps {
   onOpenAuth?: (mode: "login" | "signup") => void;
 }
 
 export default function Navbar({ onOpenAuth }: NavbarProps) {
+  const { config } = useLiquidGlass();
   const [activeTab, setActiveTab] = useState("Home");
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -80,7 +82,10 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
               {
                 "--mouse-x": `${mousePos.x}%`,
                 "--mouse-y": `${mousePos.y}%`,
-                "--nav-glow-opacity": isNavHovered ? "0.85" : "0.45",
+                "--nav-glow-opacity": config.navbar.sheenEnabled
+                  ? (isNavHovered ? Math.min(1, config.navbar.sheenIntensity * 1.8) : config.navbar.sheenIntensity)
+                  : 0,
+                "--nav-ridge-opacity": config.navbar.ridgeSpecular ? "1" : "0",
               } as React.CSSProperties
             }
             className="liquid-glass-nav pointer-events-auto hidden md:flex items-center justify-center relative max-w-[532px] w-full h-[64px] lg:h-[70px] px-3 select-none"
