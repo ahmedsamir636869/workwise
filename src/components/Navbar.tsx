@@ -29,211 +29,6 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
   ];
 
   const navRef = useRef<HTMLElement>(null);
-  const lensRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<HTMLDivElement>(null);
-  const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
-  const labelsRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const mapCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mapSizeRef = useRef<string>("");
-
-  const opticalResolution = 3;
-  const zoom = 0.96;
-
-  const stateRef = useRef({
-    center: 0,
-    width: 0,
-    targetCenter: 0,
-    targetWidth: 0,
-    lastTime: 0,
-    frame: 0,
-    initialized: false,
-    litIndex: 0,
-  });
-
-  const handleNavMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePos({ x, y });
-  };
-
-  const updateRefraction = useCallback((w: number, h: number) => {
-    if (typeof document === "undefined") return;
-    const displacement = document.getElementById("lens-map");
-    if (!displacement) return;
-
-    if (!mapCanvasRef.current) {
-      mapCanvasRef.current = document.createElement("canvas");
-    }
-    const mapCanvas = mapCanvasRef.current;
-    const mapContext = mapCanvas.getContext("2d");
-    if (!mapContext) return;
-
-    const density = Math.min(2, Math.max(1, typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1));
-    const W = Math.max(2, Math.round(w * density));
-    const H = Math.max(2, Math.round(h * density));
-    const key = `${W}:${H}`;
-    if (key === mapSizeRef.current) return;
-    mapSizeRef.current = key;
-
-    mapCanvas.width = W;
-    mapCanvas.height = H;
-    const pixels = mapContext.createImageData(W, H);
-    const radius = H / 2;
-    const halfLine = Math.max(0, W / 2 - radius);
-
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        const px = x + 0.5 - W / 2;
-        const py = y + 0.5 - H / 2;
-        const nx = px - Math.max(-halfLine, Math.min(halfLine, px));
-        const distance = Math.hypot(nx, py);
-        const depth = Math.min(1, distance / radius);
-        const rim = Math.max(0, (depth - 0.55) / 0.45);
-        const bend = Math.sin((rim * Math.PI) / 2) ** 2 * 0.46;
-        const i = (y * W + x) * 4;
-        pixels.data[i] = Math.round(255 * (0.5 + (distance ? nx / distance : 0) * bend));
-        pixels.data[i + 1] = Math.round(255 * (0.5 + (distance ? py / distance : 0) * bend));
-        pixels.data[i + 2] = 128;
-        pixels.data[i + 3] = 255;
-      }
-    }
-
-    mapContext.putImageData(pixels, 0, 0);
-    const data = mapCanvas.toDataURL();
-    displacement.setAttribute("href", data);
-    displacement.setAttributeNS("http://www.w3.org/1999/xlink", "href", data);
-  }, []);
-
-  const measureScene = useCallback(() => {
-    const nav = navRef.current;
-    const scene = sceneRef.current;
-    if (!nav || !scene) return;
-
-    scene.style.width = `${nav.clientWidth}px`;
-    scene.style.height = `${nav.clientHeight}px`;
-
-    linksRef.current.forEach((link, index) => {
-      const label = labelsRef.current[index];
-      if (!link || !label) return;
-      Object.assign(label.style, {
-        left: `${link.offsetLeft - 1}px`,
-        top: `${link.offsetTop - 1}px`,
-        width: `${link.offsetWidth}px`,
-        height: `${link.offsetHeight}px`,
-        fontSize: getComputedStyle(link).fontSize,
-      });
-    });
-  }, []);
-
-  const paintLens = useCallback((centerPos: number, widthVal: number) => {
-    const lens = lensRef.current;
-    const nav = navRef.current;
-    const scene = sceneRef.current;
-    if (!lens || !nav || !scene) return;
-
-    lens.style.width = `${widthVal}px`;
-    lens.style.transform = `translateX(${centerPos - widthVal / 2}px)`;
-
-    updateRefraction((widthVal - 2) * opticalResolution, lens.clientHeight * opticalResolution);
-
-    const x = (widthVal - 2) / 2 - centerPos * zoom;
-    const y = lens.clientHeight / 2 - (nav.clientHeight * zoom) / 2;
-    scene.style.transform = `translate(${x * opticalResolution}px,${y * opticalResolution}px) scale(${zoom * opticalResolution})`;
-  }, [updateRefraction]);
-
-  const animate = useCallback((time: number) => {
-    const state = stateRef.current;
-    const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const blend = reducedMotion ? 1 : 1 - Math.exp(-Math.min(time - state.lastTime || 16, 64) / 65);
-    state.lastTime = time;
-
-    state.center += (state.targetCenter - state.center) * blend;
-    state.width += (state.targetWidth - state.width) * blend;
-
-    const settled = Math.abs(state.targetCenter - state.center) < 0.05 && Math.abs(state.targetWidth - state.width) < 0.05;
-    if (settled) {
-      state.center = state.targetCenter;
-      state.width = state.targetWidth;
-    }
-
-    paintLens(state.center, state.width);
-
-    if (!settled) {
-      state.frame = requestAnimationFrame(animate);
-    } else {
-      state.frame = 0;
-    }
-  }, [paintLens]);
-
-  const moveLens = useCallback((nextCenter: number) => {
-    const state = stateRef.current;
-    const nav = navRef.current;
-    const litLink = linksRef.current[state.litIndex];
-    if (!litLink || !nav) return;
-
-    state.targetWidth = litLink.offsetWidth * 1.24;
-    state.targetCenter = Math.max(
-      state.targetWidth / 2 - 4,
-      Math.min(nav.clientWidth - state.targetWidth / 2 + 4, nextCenter)
-    );
-
-    if (!state.initialized) {
-      state.center = state.targetCenter;
-      state.width = state.targetWidth;
-      state.initialized = true;
-      paintLens(state.center, state.width);
-    }
-
-    if (!state.frame) {
-      state.lastTime = 0;
-      state.frame = requestAnimationFrame(animate);
-    }
-  }, [animate, paintLens]);
-
-  const illuminate = useCallback((index: number) => {
-    const state = stateRef.current;
-    state.litIndex = index;
-    linksRef.current.forEach((item, idx) => {
-      if (!item) return;
-      const isLit = idx === index;
-      item.dataset.lit = String(isLit);
-      const label = labelsRef.current[idx];
-      if (label) label.dataset.lit = String(isLit);
-    });
-
-    const link = linksRef.current[index];
-    if (link) {
-      moveLens(link.offsetLeft + link.offsetWidth / 2);
-    }
-  }, [moveLens]);
-
-  const handleNavPointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    handleNavMouseMove(e);
-    if (e.pointerType === "touch") return;
-    const state = stateRef.current;
-    const litLink = linksRef.current[state.litIndex];
-    const nav = navRef.current;
-    if (!litLink || !nav) return;
-
-    const midpoint = litLink.offsetLeft + litLink.offsetWidth / 2;
-    const pointer = e.clientX - nav.getBoundingClientRect().left - nav.clientLeft;
-    moveLens(midpoint + (pointer - midpoint) * 0.12);
-  };
-
-  const handleNavPointerLeave = () => {
-    setIsNavHovered(false);
-    const activeIndex = navLinks.findIndex((l) => l.name === activeTab);
-    illuminate(activeIndex >= 0 ? activeIndex : 0);
-  };
-
-  const handleLinkPointerMove = (e: React.PointerEvent<HTMLAnchorElement>, idx: number) => {
-    const link = linksRef.current[idx];
-    const lens = lensRef.current;
-    if (!link || !lens) return;
-    const bounds = link.getBoundingClientRect();
-    lens.style.setProperty("--glow-x", `${((e.clientX - bounds.left) / bounds.width) * 100}%`);
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -244,27 +39,231 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
   }, []);
 
   useEffect(() => {
-    const activeIndex = navLinks.findIndex((l) => l.name === activeTab);
-    measureScene();
-    illuminate(activeIndex >= 0 ? activeIndex : 0);
-
     const nav = navRef.current;
     if (!nav) return;
 
+    const links = Array.from(nav.querySelectorAll("a")) as HTMLElement[];
+    const lens = nav.querySelector(".glass-lens") as HTMLElement;
+    if (!lens || links.length === 0) return;
+
+    lens.innerHTML = "";
+
+    const view = document.createElement("div");
+    view.className = "lens-view";
+    const scene = document.createElement("div");
+    scene.className = "lens-scene";
+    const sheen = document.createElement("div");
+    sheen.className = "lens-sheen";
+
+    const labels = links.map((link) => {
+      const label = document.createElement("span");
+      label.className = "lens-label";
+      label.textContent = link.textContent;
+      scene.append(label);
+      return label;
+    });
+
+    const optics = document.createElement("div");
+    optics.className = "lens-optics";
+    optics.append(scene);
+    view.append(optics);
+    lens.append(view, sheen);
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const zoom = 0.96;
+    const opticalResolution = 3;
+    let center = 0,
+      width = 0,
+      targetCenter = 0,
+      targetWidth = 0;
+    let frame = 0,
+      lastTime = 0,
+      initialized = false;
+
+    let selectedIndex = navLinks.findIndex((l) => l.name === activeTab);
+    if (selectedIndex < 0) selectedIndex = 0;
+    let selected = links[selectedIndex] || links[0];
+    let lit = selected;
+
+    function measureScene() {
+      scene.style.width = `${nav!.clientWidth}px`;
+      scene.style.height = `${nav!.clientHeight}px`;
+      links.forEach((link, index) => {
+        Object.assign(labels[index].style, {
+          left: `${link.offsetLeft - 1}px`,
+          top: `${link.offsetTop - 1}px`,
+          width: `${link.offsetWidth}px`,
+          height: `${link.offsetHeight}px`,
+          fontSize: getComputedStyle(link).fontSize,
+        });
+      });
+    }
+
+    const displacement = document.getElementById("lens-map");
+    const mapCanvas = document.createElement("canvas");
+    const mapContext = mapCanvas.getContext("2d");
+    let mapSize = "";
+
+    function updateRefraction(w: number, h: number) {
+      if (!displacement || !mapContext) return;
+      const density = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+      const W = Math.max(2, Math.round(w * density)),
+        H = Math.max(2, Math.round(h * density));
+      const key = `${W}:${H}`;
+      if (key === mapSize) return;
+      mapSize = key;
+      mapCanvas.width = W;
+      mapCanvas.height = H;
+      const pixels = mapContext.createImageData(W, H);
+      const radius = H / 2,
+        halfLine = Math.max(0, W / 2 - radius);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const px = x + 0.5 - W / 2,
+            py = y + 0.5 - H / 2;
+          const nx = px - Math.max(-halfLine, Math.min(halfLine, px));
+          const distance = Math.hypot(nx, py);
+          const depth = Math.min(1, distance / radius);
+          const rim = Math.max(0, (depth - 0.55) / 0.45);
+          const bend = Math.sin((rim * Math.PI) / 2) ** 2 * 0.46;
+          const i = (y * W + x) * 4;
+          pixels.data[i] = Math.round(255 * (0.5 + (distance ? nx / distance : 0) * bend));
+          pixels.data[i + 1] = Math.round(255 * (0.5 + (distance ? py / distance : 0) * bend));
+          pixels.data[i + 2] = 128;
+          pixels.data[i + 3] = 255;
+        }
+      }
+      mapContext.putImageData(pixels, 0, 0);
+      const data = mapCanvas.toDataURL();
+      displacement.setAttribute("href", data);
+      displacement.setAttributeNS("http://www.w3.org/1999/xlink", "href", data);
+    }
+
+    function paintLens() {
+      lens.style.width = `${width}px`;
+      lens.style.transform = `translateX(${center - width / 2}px)`;
+      updateRefraction((width - 2) * opticalResolution, lens.clientHeight * opticalResolution);
+      const x = (width - 2) / 2 - center * zoom;
+      const y = lens.clientHeight / 2 - (nav!.clientHeight * zoom) / 2;
+      scene.style.transform = `translate(${x * opticalResolution}px,${y * opticalResolution}px) scale(${zoom * opticalResolution})`;
+    }
+
+    function animate(time: number) {
+      const blend = reducedMotion.matches
+        ? 1
+        : 1 - Math.exp(-Math.min(time - lastTime || 16, 64) / 65);
+      lastTime = time;
+      center += (targetCenter - center) * blend;
+      width += (targetWidth - width) * blend;
+      const settled =
+        Math.abs(targetCenter - center) < 0.05 && Math.abs(targetWidth - width) < 0.05;
+      if (settled) {
+        center = targetCenter;
+        width = targetWidth;
+      }
+      paintLens();
+      frame = settled ? 0 : requestAnimationFrame(animate);
+    }
+
+    function moveLens(nextCenter: number) {
+      targetWidth = lit.offsetWidth * 1.24;
+      targetCenter = Math.max(
+        targetWidth / 2 - 4,
+        Math.min(nav!.clientWidth - targetWidth / 2 + 4, nextCenter)
+      );
+      if (!initialized) {
+        center = targetCenter;
+        width = targetWidth;
+        initialized = true;
+        paintLens();
+      }
+      if (!frame) {
+        lastTime = 0;
+        frame = requestAnimationFrame(animate);
+      }
+    }
+
+    function illuminate(link: HTMLElement) {
+      lit = link;
+      links.forEach((item, index) => {
+        item.dataset.lit = String(item === link);
+        labels[index].dataset.lit = String(item === link);
+      });
+      moveLens(link.offsetLeft + link.offsetWidth / 2);
+    }
+
+    const cleanups: (() => void)[] = [];
+
+    links.forEach((link) => {
+      const onPointerEnter = () => illuminate(link);
+      const onFocus = () => illuminate(link);
+      const onPointerMove = (event: PointerEvent) => {
+        const bounds = link.getBoundingClientRect();
+        lens.style.setProperty(
+          "--glow-x",
+          `${((event.clientX - bounds.left) / bounds.width) * 100}%`
+        );
+      };
+
+      link.addEventListener("pointerenter", onPointerEnter);
+      link.addEventListener("focus", onFocus);
+      link.addEventListener("pointermove", onPointerMove);
+
+      cleanups.push(() => {
+        link.removeEventListener("pointerenter", onPointerEnter);
+        link.removeEventListener("focus", onFocus);
+        link.removeEventListener("pointermove", onPointerMove);
+      });
+    });
+
+    const onNavPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      const midpoint = lit.offsetLeft + lit.offsetWidth / 2;
+      const pointer = event.clientX - nav!.getBoundingClientRect().left - nav!.clientLeft;
+      moveLens(midpoint + (pointer - midpoint) * 0.12);
+    };
+
+    const onNavPointerLeave = () => {
+      illuminate(
+        nav!.contains(document.activeElement)
+          ? (document.activeElement as HTMLElement)
+          : selected
+      );
+    };
+
+    const onFocusOut = () => {
+      requestAnimationFrame(() => {
+        if (!nav!.contains(document.activeElement)) illuminate(selected);
+      });
+    };
+
+    nav.addEventListener("pointermove", onNavPointerMove);
+    nav.addEventListener("pointerleave", onNavPointerLeave);
+    nav.addEventListener("focusout", onFocusOut);
+
+    cleanups.push(() => {
+      nav.removeEventListener("pointermove", onNavPointerMove);
+      nav.removeEventListener("pointerleave", onNavPointerLeave);
+      nav.removeEventListener("focusout", onFocusOut);
+    });
+
     const ro = new ResizeObserver(() => {
       measureScene();
-      const currentIdx = stateRef.current.litIndex;
-      illuminate(currentIdx);
+      illuminate(lit);
     });
     ro.observe(nav);
+    cleanups.push(() => ro.disconnect());
+
+    requestAnimationFrame(() => {
+      measureScene();
+      illuminate(selected);
+    });
 
     return () => {
-      ro.disconnect();
-      if (stateRef.current.frame) {
-        cancelAnimationFrame(stateRef.current.frame);
-      }
+      cleanups.forEach((c) => c());
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [measureScene, illuminate, activeTab]);
+  }, [activeTab]);
 
   return (
     <header
@@ -300,78 +299,24 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           {/* Desktop Center Navigation Capsule - Floating optical liquid glass island with dynamic lens */}
           <nav
             ref={navRef}
-            onPointerMove={handleNavPointerMove}
-            onMouseEnter={() => setIsNavHovered(true)}
-            onPointerLeave={handleNavPointerLeave}
-            style={
-              {
-                "--mouse-x": `${mousePos.x}%`,
-                "--mouse-y": `${mousePos.y}%`,
-                "--nav-glow-opacity": config.navbar.sheenEnabled
-                  ? (isNavHovered ? Math.min(1, config.navbar.sheenIntensity * 1.8) : config.navbar.sheenIntensity)
-                  : 0,
-                "--nav-ridge-opacity": config.navbar.ridgeSpecular ? "1" : "0",
-              } as React.CSSProperties
-            }
-            className="liquid-glass-nav pointer-events-auto hidden md:flex items-center justify-center relative max-w-[532px] w-full h-[64px] lg:h-[70px] px-3 select-none"
+            className="navigation liquid-glass-nav pointer-events-auto hidden md:flex items-center justify-between max-w-[532px] w-full h-[58px] select-none relative"
           >
-            {/* Optical Glass Lens Hover Layer */}
-            <div ref={lensRef} className="glass-lens">
-              <div className="lens-view">
-                <div className="lens-optics">
-                  <div ref={sceneRef} className="lens-scene">
-                    {navLinks.map((item, idx) => (
-                      <span
-                        key={item.name}
-                        ref={(el) => { labelsRef.current[idx] = el; }}
-                        className="lens-label font-sans text-[13px] lg:text-[14px]"
-                        data-lit={activeTab === item.name ? "true" : "false"}
-                      >
-                        {item.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="lens-sheen" />
-            </div>
-
-            {/* Interactive Links Container */}
-            <div className="relative z-10 flex items-center justify-between w-full h-full px-2">
-              {navLinks.map((item, idx) => {
-                const isActive = activeTab === item.name;
-                return (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    ref={(el) => { linksRef.current[idx] = el; }}
-                    onClick={(e) => {
-                      if (item.href === "#") {
-                        e.preventDefault();
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }
-                      setActiveTab(item.name);
-                      illuminate(idx);
-                    }}
-                    onPointerEnter={() => illuminate(idx)}
-                    onFocus={() => illuminate(idx)}
-                    onPointerMove={(e) => handleLinkPointerMove(e, idx)}
-                    data-lit={isActive ? "true" : "false"}
-                    className={`relative z-10 flex items-center justify-center px-3 lg:px-4 py-2 rounded-full font-sans text-[13px] lg:text-[14px] leading-[21px] transition-colors duration-200 cursor-pointer select-none whitespace-nowrap ${
-                      isActive
-                        ? isDark
-                          ? "text-[#38BDF8] font-semibold"
-                          : "text-[#0958A7] font-semibold"
-                        : isDark
-                          ? "text-[#94A3B8] hover:text-white font-medium"
-                          : "text-[#48525A] hover:text-[#0958A7] font-medium"
-                    }`}
-                  >
-                    {item.name}
-                  </a>
-                );
-              })}
-            </div>
+            <div className="glass-lens" />
+            {navLinks.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                onClick={(e) => {
+                  if (item.href === "#") {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                  setActiveTab(item.name);
+                }}
+              >
+                {item.name}
+              </a>
+            ))}
           </nav>
 
           {/* Desktop Right Controls - Separated standalone floating buttons */}
@@ -480,10 +425,17 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
         )}
       </div>
       {/* SVG Refraction Filter for Optical Glass Lens */}
-      <svg className="fixed pointer-events-none opacity-0 w-0 h-0" aria-hidden="true">
+      <svg
+        style={{ position: "fixed", top: -9999, left: -9999, width: 200, height: 200, pointerEvents: "none", opacity: 0 }}
+        aria-hidden="true"
+      >
         <defs>
           <filter id="glass-refraction" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
-            <feImage id="lens-map" preserveAspectRatio="none" />
+            <feImage
+              id="lens-map"
+              href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><rect width='10' height='10' fill='%23808080'/></svg>"
+              preserveAspectRatio="none"
+            />
             <feDisplacementMap in="SourceGraphic" in2="lens-map" xChannelSelector="R" yChannelSelector="G" scale="22" />
           </filter>
         </defs>
