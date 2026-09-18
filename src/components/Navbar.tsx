@@ -54,10 +54,26 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     meniscus.className = "lens-meniscus";
     const sheen = document.createElement("div");
     sheen.className = "lens-sheen";
+    const scene = document.createElement("div");
+    scene.className = "lens-scene";
 
+    const labels = links.map((link) => {
+      const label = document.createElement("span");
+      label.className = "lens-label";
+      label.textContent = link.textContent;
+      scene.append(label);
+      return label;
+    });
+
+    const optics = document.createElement("div");
+    optics.className = "lens-optics";
+    optics.append(scene);
+    view.append(optics);
     lens.append(view, meniscus, sheen);
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const zoom = 0.88; // Minimizing optical reducing lens (condensed depth)
+    const opticalResolution = 3;
     let center = 0,
       width = 0,
       targetCenter = 0,
@@ -71,9 +87,71 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     let selected = links[selectedIndex] || links[0];
     let lit = selected;
 
+    function measureScene() {
+      scene.style.width = `${nav!.clientWidth}px`;
+      scene.style.height = `${nav!.clientHeight}px`;
+      links.forEach((link, index) => {
+        Object.assign(labels[index].style, {
+          left: `${link.offsetLeft - 1}px`,
+          top: `${link.offsetTop - 1}px`,
+          width: `${link.offsetWidth}px`,
+          height: `${link.offsetHeight}px`,
+          fontSize: getComputedStyle(link).fontSize,
+        });
+      });
+    }
+
+    const displacement = document.getElementById("lens-map");
+    const mapCanvas = document.createElement("canvas");
+    const mapContext = mapCanvas.getContext("2d", { willReadFrequently: true });
+    let mapSize = "";
+
+    function updateRefraction(w: number, h: number) {
+      if (!displacement || !mapContext) return;
+      const density = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+      const W = Math.max(2, Math.round(w * density));
+      const H = Math.max(2, Math.round(h * density));
+      const key = `${W}:${H}`;
+      if (key === mapSize) return;
+      mapSize = key;
+      mapCanvas.width = W;
+      mapCanvas.height = H;
+      const pixels = mapContext.createImageData(W, H);
+      const radius = H / 2;
+      const halfLine = Math.max(0, W / 2 - radius);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const px = x + 0.5 - W / 2;
+          const py = y + 0.5 - H / 2;
+          const nx = px - Math.max(-halfLine, Math.min(halfLine, px));
+          const distance = Math.hypot(nx, py);
+          const depth = Math.min(1, distance / radius);
+          // Minimizing lens: rim deflects light inward towards the optical axis
+          const rim = Math.max(0, (depth - 0.42) / 0.58);
+          const bend = Math.sin((rim * Math.PI) / 2) ** 2 * 0.55;
+          const i = (y * W + x) * 4;
+          // Negative sign pulls pixels inward (optical concave / reducing lens)
+          pixels.data[i] = Math.round(255 * (0.5 - (distance ? nx / distance : 0) * bend));
+          pixels.data[i + 1] = Math.round(255 * (0.5 - (distance ? py / distance : 0) * bend));
+          pixels.data[i + 2] = 128;
+          pixels.data[i + 3] = 255;
+        }
+      }
+      mapContext.putImageData(pixels, 0, 0);
+      const data = mapCanvas.toDataURL();
+      displacement.setAttribute("href", data);
+      displacement.setAttributeNS("http://www.w3.org/1999/xlink", "href", data);
+      displacement.setAttribute("width", `${W}`);
+      displacement.setAttribute("height", `${H}`);
+    }
+
     function paintLens() {
       lens.style.width = `${width}px`;
       lens.style.transform = `translateX(${center - width / 2}px)`;
+      updateRefraction((width - 2) * opticalResolution, lens.clientHeight * opticalResolution);
+      const x = (width - 2) / 2 - center * zoom;
+      const y = lens.clientHeight / 2 - (nav!.clientHeight * zoom) / 2;
+      scene.style.transform = `translate(${x * opticalResolution}px,${y * opticalResolution}px) scale(${zoom * opticalResolution})`;
     }
 
     function animate(time: number) {
@@ -113,8 +191,9 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
 
     function illuminate(link: HTMLElement) {
       lit = link;
-      links.forEach((item) => {
+      links.forEach((item, index) => {
         item.dataset.lit = String(item === link);
+        labels[index].dataset.lit = String(item === link);
       });
       moveLens(link.offsetLeft + link.offsetWidth / 2);
     }
@@ -175,12 +254,14 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     });
 
     const ro = new ResizeObserver(() => {
+      measureScene();
       illuminate(lit);
     });
     ro.observe(nav);
     cleanups.push(() => ro.disconnect());
 
     requestAnimationFrame(() => {
+      measureScene();
       illuminate(selected);
     });
 
@@ -349,6 +430,23 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           </div>
         )}
       </div>
+      {/* SVG Refraction Filter for Optical Reducing Glass Lens */}
+      <svg
+        style={{ position: "fixed", top: -9999, left: -9999, width: 200, height: 200, pointerEvents: "none", opacity: 0 }}
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="glass-refraction" colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
+            <feImage
+              id="lens-map"
+              result="displacementMap"
+              href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><rect width='10' height='10' fill='%23808080'/></svg>"
+              preserveAspectRatio="none"
+            />
+            <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="22" />
+          </filter>
+        </defs>
+      </svg>
     </header>
   );
 }
