@@ -243,27 +243,28 @@ html {
   align-items: center;
   padding: 4px 6px;
   border-radius: 9999px;
-  background: rgba(45, 47, 52, 0.78);
+  background: rgba(20, 22, 27, 0.76);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 16px 36px -4px rgba(0, 0, 0, 0.55),
-    0 4px 12px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 20px 48px -6px rgba(0, 0, 0, 0.72),
+    0 8px 18px -2px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(32px) saturate(190%) contrast(105%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%) contrast(105%);
   min-width: 0;
   overflow: visible;
 }
 
 html:not(.dark) .navigation {
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.92);
   box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
-    0 14px 32px -4px rgba(9, 88, 167, 0.14),
-    0 4px 10px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+    inset 0 1.5px 0 #ffffff,
+    0 16px 36px -4px rgba(9, 88, 167, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(32px) saturate(190%) contrast(105%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%) contrast(105%);
 }
 
 .navigation a {
@@ -271,29 +272,34 @@ html:not(.dark) .navigation {
   z-index: 2;
   flex: 1;
   text-align: center;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 9999px;
-  color: #e8e8ed;
+  color: rgba(235, 235, 245, 0.64);
   text-decoration: none;
   font-size: 14px;
-  font-weight: 550;
-  letter-spacing: -0.01em;
-  transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s ease;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html:not(.dark) .navigation a {
-  color: #48525A;
+  color: rgba(55, 65, 81, 0.75);
 }
 
 .navigation a:hover {
   color: #ffffff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
 }
 
 html:not(.dark) .navigation a:hover {
-  color: #111827;
+  color: #0f172a;
 }
 
 /* Original lit link is hidden because the elevated optical glass lens displays the minified, refracted label */
@@ -306,37 +312,39 @@ html:not(.dark) .navigation a:hover {
 }
 
 .navigation a:focus-visible {
-  outline: 2px solid #28b8ff;
+  outline: 2px solid #38bdf8;
   outline-offset: 2px;
 }
 
-/* Authentic Elevated 3D Liquid Crystal Glass Lens (Overhanging Domes) */
+/* Authentic Elevated 3D Liquid Crystal Glass Lens (Apple VisionOS Floating Capsule) */
 .glass-lens {
   --glow-x: 50%;
   position: absolute;
   pointer-events: none;
   z-index: 5;
   left: 0;
-  top: -6px;
-  bottom: -6px;
-  width: 110px;
+  top: -5px;
+  bottom: -5px;
+  width: 112px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   background: transparent;
   will-change: transform, width;
   box-shadow:
-    0 12px 30px -4px rgba(0, 0, 0, 0.75),
-    0 4px 12px rgba(0, 0, 0, 0.45),
-    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.65),
-    inset 0 -1.5px 1px rgba(255, 255, 255, 0.2);
+    0 16px 36px -4px rgba(0, 0, 0, 0.78),
+    0 4px 12px rgba(0, 0, 0, 0.50),
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 -1.5px 1px rgba(255, 255, 255, 0.22);
 }
 
 html:not(.dark) .glass-lens {
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow:
-    0 12px 28px -4px rgba(9, 88, 167, 0.22),
-    0 4px 10px rgba(0, 0, 0, 0.08),
+    0 16px 32px -4px rgba(9, 88, 167, 0.18),
+    0 4px 10px rgba(0, 0, 0, 0.06),
     inset 0 1.5px 0.5px #ffffff,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8),
     inset 0 -1px 0.5px rgba(255, 255, 255, 0.7);
 }
 
@@ -347,23 +355,26 @@ html:not(.dark) .glass-lens {
   overflow: hidden;
   border-radius: inherit;
   background: linear-gradient(
-    135deg,
-    rgba(55, 58, 66, 0.68) 0%,
-    rgba(34, 36, 42, 0.75) 60%,
-    rgba(22, 24, 28, 0.82) 100%
-  );
-  backdrop-filter: url(#glass-refraction) blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+    145deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 35%,
+    rgba(0, 0, 0, 0.20) 75%,
+    rgba(255, 255, 255, 0.08) 100%
+  ),
+  rgba(28, 30, 36, 0.70);
+  backdrop-filter: url(#glass-refraction) blur(24px) saturate(190%) contrast(105%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(105%);
 }
 
 html:not(.dark) .lens-view {
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.82) 0%,
-    rgba(242, 246, 255, 0.70) 100%
+    145deg,
+    rgba(255, 255, 255, 0.90) 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(240, 245, 255, 0.55) 100%
   );
-  backdrop-filter: url(#glass-refraction) blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: url(#glass-refraction) blur(24px) saturate(190%) contrast(105%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(105%);
 }
 
 /* 3x Optical Sampling Plane for Smooth Displacement Refraction */
@@ -397,17 +408,20 @@ html:not(.dark) .lens-view {
   white-space: nowrap;
   letter-spacing: -0.015em;
   opacity: 0;
-  transition: color 0.2s ease, opacity 0.2s ease;
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .lens-label[data-lit="true"] {
   opacity: 1;
-  color: #28b8ff;
+  color: #38bdf8;
   font-weight: 600;
   text-shadow:
-    0 0 16px rgba(40, 184, 255, 0.65),
+    0 0 14px rgba(56, 189, 248, 0.65),
     0 0 32px rgba(40, 184, 255, 0.35),
-    0 1px 2px rgba(0, 0, 0, 0.5);
+    0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 html:not(.dark) .lens-label[data-lit="true"] {
@@ -418,7 +432,7 @@ html:not(.dark) .lens-label[data-lit="true"] {
     0 1px 1px rgba(255, 255, 255, 0.8);
 }
 
-/* Optical Meniscus Reflection (Pure Crystal Glass Catchlights - No Rainbow) */
+/* Optical Meniscus Reflection (Pure Apple Crystal Glass Catchlights - No Rainbow) */
 .lens-meniscus {
   position: absolute;
   inset: 0;
@@ -426,51 +440,58 @@ html:not(.dark) .lens-label[data-lit="true"] {
   pointer-events: none;
   z-index: 3;
   background:
-    /* Top Curved Meniscus Specular Crest */
-    radial-gradient(ellipse 85% 14px at 50% 0px,
-      rgba(255, 255, 255, 0.65) 0%,
-      rgba(255, 255, 255, 0.25) 45%,
-      transparent 80%
+    /* Razor-sharp top glass crest highlight */
+    radial-gradient(ellipse 75% 10px at 50% 0px,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(255, 255, 255, 0.25) 50%,
+      transparent 85%
     ),
-    /* Inner Refraction Bevel Rim */
+    /* Soft electric ambient core glow */
+    radial-gradient(circle 52px at 50% 50%,
+      rgba(56, 189, 248, 0.14) 0%,
+      transparent 75%
+    ),
+    /* Inner glass thickness vignette at perimeter */
     radial-gradient(ellipse 95% 100% at 50% 50%,
-      transparent 72%,
-      rgba(255, 255, 255, 0.12) 88%,
-      rgba(0, 0, 0, 0.45) 100%
+      transparent 70%,
+      rgba(255, 255, 255, 0.08) 85%,
+      rgba(0, 0, 0, 0.35) 100%
     ),
-    /* Bottom Curved Meniscus Bounce Light */
-    radial-gradient(ellipse 85% 12px at 50% 100%,
-      rgba(255, 255, 255, 0.18) 0%,
-      rgba(0, 0, 0, 0.35) 50%,
-      transparent 80%
+    /* Bottom glass bounce reflection */
+    radial-gradient(ellipse 75% 8px at 50% 100%,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(0, 0, 0, 0.25) 60%,
+      transparent 85%
     );
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.15),
-    inset 0 2px 2px rgba(255, 255, 255, 0.35),
-    inset 0 -2px 3px rgba(0, 0, 0, 0.4);
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 1.5px rgba(0, 0, 0, 0.35);
 }
 
 html:not(.dark) .lens-meniscus {
   background:
-    radial-gradient(ellipse 85% 14px at 50% 0px,
+    radial-gradient(ellipse 75% 10px at 50% 0px,
       rgba(255, 255, 255, 0.95) 0%,
-      rgba(255, 255, 255, 0.4) 45%,
-      transparent 80%
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 85%
+    ),
+    radial-gradient(circle 52px at 50% 50%,
+      rgba(9, 88, 167, 0.08) 0%,
+      transparent 75%
     ),
     radial-gradient(ellipse 95% 100% at 50% 50%,
-      transparent 72%,
-      rgba(255, 255, 255, 0.6) 88%,
-      rgba(9, 88, 167, 0.08) 100%
+      transparent 70%,
+      rgba(255, 255, 255, 0.7) 88%,
+      rgba(9, 88, 167, 0.06) 100%
     ),
-    radial-gradient(ellipse 85% 12px at 50% 100%,
+    radial-gradient(ellipse 75% 8px at 50% 100%,
       rgba(255, 255, 255, 0.6) 0%,
-      rgba(9, 88, 167, 0.06) 50%,
-      transparent 80%
+      rgba(9, 88, 167, 0.08) 60%,
+      transparent 85%
     );
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
-    inset 0 2px 2px #ffffff,
-    inset 0 -1.5px 2px rgba(9, 88, 167, 0.12);
+    inset 0 1.5px 1px #ffffff,
+    inset 0 -1px 1px rgba(9, 88, 167, 0.12);
 }
 
 /* Specular Catch-light Tracking Cursor */
@@ -481,12 +502,21 @@ html:not(.dark) .lens-meniscus {
   pointer-events: none;
   z-index: 4;
   background:
-    radial-gradient(ellipse 75px 24px at var(--glow-x, 50%) 2px, rgba(255, 255, 255, 0.32), transparent 70%);
+    radial-gradient(circle 52px at var(--glow-x, 50%) 2px,
+      rgba(255, 255, 255, 0.38) 0%,
+      rgba(255, 255, 255, 0.10) 40%,
+      transparent 75%
+    );
+  transition: background 0.15s ease-out;
 }
 
 html:not(.dark) .lens-sheen {
   background:
-    radial-gradient(ellipse 75px 24px at var(--glow-x, 50%) 2px, rgba(255, 255, 255, 0.8), transparent 70%);
+    radial-gradient(circle 52px at var(--glow-x, 50%) 2px,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(255, 255, 255, 0.25) 40%,
+      transparent 75%
+    );
 }
 
 /* Floating Glass Island Pill for Logo on scroll */

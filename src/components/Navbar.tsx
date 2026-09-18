@@ -72,7 +72,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     lens.append(view, meniscus, sheen);
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const zoom = 0.88; // Minimizing optical reducing lens (condensed depth)
+    const zoom = 0.91; // Apple VisionOS optical reduction (refined condensation with crisp typography)
     const opticalResolution = 3;
     let center = 0,
       width = 0,
@@ -126,13 +126,13 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           const nx = px - Math.max(-halfLine, Math.min(halfLine, px));
           const distance = Math.hypot(nx, py);
           const depth = Math.min(1, distance / radius);
-          // Minimizing lens: rim deflects light inward towards the optical axis
-          const rim = Math.max(0, (depth - 0.42) / 0.58);
-          const bend = Math.sin((rim * Math.PI) / 2) ** 2 * 0.55;
+          // C1 continuous Hermite-sinusoidal meniscus profile (zero at center, peak in bevel, zero at rim boundary)
+          const u = Math.max(0, Math.min(1, (depth - 0.36) / 0.64));
+          const bend = Math.pow(Math.sin(Math.PI * u), 1.2) * 0.60;
           const i = (y * W + x) * 4;
-          // Negative sign pulls pixels inward (optical concave / reducing lens)
-          pixels.data[i] = Math.round(255 * (0.5 - (distance ? nx / distance : 0) * bend));
-          pixels.data[i + 1] = Math.round(255 * (0.5 - (distance ? py / distance : 0) * bend));
+          // Inward optical refraction for minimizing concave meniscus lens
+          pixels.data[i] = Math.round(128 - (distance ? nx / distance : 0) * bend * 127);
+          pixels.data[i + 1] = Math.round(128 - (distance ? py / distance : 0) * bend * 127);
           pixels.data[i + 2] = 128;
           pixels.data[i + 3] = 255;
         }
@@ -157,7 +157,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     function animate(time: number) {
       const blend = reducedMotion.matches
         ? 1
-        : 1 - Math.exp(-Math.min(time - lastTime || 16, 64) / 60);
+        : 1 - Math.exp(-Math.min(time - lastTime || 16, 64) / 46);
       lastTime = time;
       center += (targetCenter - center) * blend;
       width += (targetWidth - width) * blend;
@@ -172,7 +172,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     }
 
     function moveLens(nextCenter: number) {
-      targetWidth = Math.max(96, Math.round(lit.offsetWidth * 1.18 + 14));
+      targetWidth = Math.max(98, Math.round(lit.offsetWidth * 1.14 + 18));
       targetCenter = Math.max(
         targetWidth / 2 - 4,
         Math.min(nav!.clientWidth - targetWidth / 2 + 4, nextCenter)
