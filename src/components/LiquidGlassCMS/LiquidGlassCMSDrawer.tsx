@@ -44,6 +44,18 @@ export default function LiquidGlassCMSDrawer() {
     errorMessage,
   } = useLiquidGlass();
 
+  // Live Optical Physics Engine calculations for new liquid glass header:
+  const ior = config.global.refractiveIndex;
+  const dDist = config.navbar.refractionDistance ?? 42;
+  const dispScale = config.navbar.displacementScale;
+  const thicknessH = Math.round(config.global.thickness * 24);
+  const sinMax = 0.85; // incident ray angle representation (~58°)
+  const sinRef = Math.min(0.99, sinMax / ior);
+  const theta1Deg = Math.round((Math.asin(sinMax) * 180) / Math.PI);
+  const theta2Deg = Math.round((Math.asin(sinRef) * 180) / Math.PI);
+  const tanDiff = Math.tan(((theta1Deg - theta2Deg) * Math.PI) / 180);
+  const estimatedShiftPx = Math.round((thicknessH + dDist) * tanDiff * (dispScale / 30) * 10) / 10;
+
   const handleSave = async () => {
     setSaveMessage("Saving to Supabase...");
     const res = await saveToSupabase();
@@ -281,15 +293,40 @@ export default function LiquidGlassCMSDrawer() {
               {/* TAB 1: OPTICS & PHYSICS CONTROLS */}
               {activeTab === "optics" && (
                 <div className="space-y-4">
-                  <div className="p-3 bg-blue-50/60 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/30 flex items-start gap-2.5">
-                    <Zap className="w-4 h-4 text-[#0958A7] dark:text-blue-400 mt-0.5 shrink-0" />
-                    <div className="text-xs">
-                      <div className="font-semibold text-[#0958A7] dark:text-blue-300">
-                        Snell's Law Optical Refraction Engine
+                  {/* New Liquid Glass Header Snell's Law Optical Refraction Engine Banner */}
+                  <div className="p-3.5 bg-gradient-to-br from-blue-50/90 via-indigo-50/70 to-blue-100/40 dark:from-blue-950/40 dark:via-slate-900/60 dark:to-indigo-950/30 rounded-xl border border-blue-200/80 dark:border-blue-800/60 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-[#0958A7] dark:text-blue-400 shrink-0" />
+                        <span className="text-xs font-bold text-[#0958A7] dark:text-blue-300">
+                          Liquid Header Snell Refraction Engine
+                        </span>
                       </div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                        Calculates lateral light deflection: Δ = (h + d) • tan(θ₁ - θ₂).
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-600/10 dark:bg-blue-400/15 text-[#0958A7] dark:text-blue-300 font-bold border border-blue-500/20">
+                        Δ = {estimatedShiftPx}px shift
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-white/80 dark:bg-slate-900/85 border border-blue-100 dark:border-slate-800 font-mono text-[11px] text-slate-800 dark:text-slate-200 flex flex-col gap-1.5 shadow-xs">
+                      <div className="font-semibold text-blue-700 dark:text-blue-300 flex items-center justify-between">
+                        <span>Δ = (h + d) • tan(θ₁ - θ₂) • (S / 30) • cos(θ_tilt)</span>
+                        <span className="text-[9px] text-slate-400 font-normal">New Header Engine</span>
                       </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-1 border-t border-slate-100 dark:border-slate-800">
+                        <span>h = {thicknessH}px</span>
+                        <span>•</span>
+                        <span>d = {dDist}px</span>
+                        <span>•</span>
+                        <span>θ₁ = {theta1Deg}°</span>
+                        <span>•</span>
+                        <span>θ₂ = {theta2Deg}° (n={ior.toFixed(2)})</span>
+                        <span>•</span>
+                        <span className="text-blue-600 dark:text-blue-400 font-semibold">S = {dispScale} scale</span>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                      Calculates dynamic lateral ray deflection across the 3D tilted liquid glass capsule with continuous Snell refraction.
                     </div>
                   </div>
 

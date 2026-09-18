@@ -117,11 +117,13 @@ export default function LiquidGlassStudioPage() {
   const ior = config.global.refractiveIndex;
   const dDist = config.navbar.refractionDistance ?? 42;
   const dispScale = config.navbar.displacementScale;
+  const thicknessH = Math.round(config.global.thickness * 24);
   const sinMax = 0.85; // incident angle representation
-  const sinRef = Math.min(1, sinMax / ior);
+  const sinRef = Math.min(0.99, sinMax / ior);
   const theta1Deg = Math.round((Math.asin(sinMax) * 180) / Math.PI);
   const theta2Deg = Math.round((Math.asin(sinRef) * 180) / Math.PI);
-  const estimatedShiftPx = Math.round((dDist * Math.tan((theta1Deg - theta2Deg) * Math.PI / 180) * (dispScale / 30)));
+  const tanDiff = Math.tan(((theta1Deg - theta2Deg) * Math.PI) / 180);
+  const estimatedShiftPx = Math.round((thicknessH + dDist) * tanDiff * (dispScale / 30) * 10) / 10;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white">
@@ -290,6 +292,43 @@ export default function LiquidGlassStudioPage() {
           {/* TAB 1: OPTICS & PHYSICS */}
           {controlTab === "optics" && (
             <div className="space-y-4">
+              {/* New Liquid Glass Header Snell's Law Optical Refraction Engine Banner */}
+              <div className="p-4 bg-gradient-to-br from-blue-950/60 via-slate-900/80 to-indigo-950/40 rounded-xl border border-blue-800/50 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-xs font-bold text-blue-300">
+                      Liquid Header Snell Refraction Engine
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">
+                    Δ = {estimatedShiftPx}px shift
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800 font-mono text-[11px] text-slate-200 flex flex-col gap-1.5 shadow-xs">
+                  <div className="font-semibold text-blue-300 flex items-center justify-between">
+                    <span>Δ = (h + d) • tan(θ₁ - θ₂) • (S / 30) • cos(θ_tilt)</span>
+                    <span className="text-[9px] text-slate-400 font-normal">New Header Engine</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-1 border-t border-slate-800">
+                    <span>h = {thicknessH}px</span>
+                    <span>•</span>
+                    <span>d = {dDist}px</span>
+                    <span>•</span>
+                    <span>θ₁ = {theta1Deg}°</span>
+                    <span>•</span>
+                    <span>θ₂ = {theta2Deg}° (n={ior.toFixed(2)})</span>
+                    <span>•</span>
+                    <span className="text-blue-400 font-semibold">S = {dispScale} scale</span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-400 leading-snug">
+                  Calculates dynamic lateral ray deflection across the 3D tilted liquid glass capsule with continuous Snell refraction.
+                </div>
+              </div>
+
               {/* Refraction Distance (Focal Depth) */}
               <div className="p-4 rounded-xl bg-slate-900/90 border border-blue-900/40 space-y-2">
                 <div className="flex justify-between text-xs">
