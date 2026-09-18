@@ -22,9 +22,41 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
 
   const handleNavMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    const x = px * 100;
+    const y = py * 100;
+    const tiltY = (px - 0.5) * 2.3;
+    const tiltX = (py - 0.5) * -1.6;
+
     setMousePos({ x, y });
+
+    const nav = e.currentTarget;
+    nav.style.setProperty("--mx", `${x}%`);
+    nav.style.setProperty("--my", `${y}%`);
+    nav.style.setProperty("--tilt-y", `${tiltY}deg`);
+    nav.style.setProperty("--tilt-x", `${tiltX}deg`);
+
+    const stage = document.getElementById("navbar-stage");
+    if (stage) {
+      stage.style.setProperty("--mx", `${x}%`);
+      stage.style.setProperty("--my", `${y}%`);
+    }
+  };
+
+  const handleNavMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    setIsNavHovered(false);
+    const nav = e.currentTarget;
+    nav.style.setProperty("--mx", "50%");
+    nav.style.setProperty("--my", "50%");
+    nav.style.setProperty("--tilt-x", "0deg");
+    nav.style.setProperty("--tilt-y", "0deg");
+
+    const stage = document.getElementById("navbar-stage");
+    if (stage) {
+      stage.style.setProperty("--mx", "50%");
+      stage.style.setProperty("--my", "50%");
+    }
   };
 
   useEffect(() => {
@@ -74,70 +106,80 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           </Link>
 
           {/* Desktop Center Navigation Capsule - Floating liquid glass island with dynamic reflection */}
-          <nav
-            onMouseMove={handleNavMouseMove}
-            onMouseEnter={() => setIsNavHovered(true)}
-            onMouseLeave={() => setIsNavHovered(false)}
-            style={
-              {
-                "--mouse-x": `${mousePos.x}%`,
-                "--mouse-y": `${mousePos.y}%`,
-                "--nav-glow-opacity": config.navbar.sheenEnabled
-                  ? (isNavHovered ? Math.min(1, config.navbar.sheenIntensity * 1.8) : config.navbar.sheenIntensity)
-                  : 0,
-                "--nav-ridge-opacity": config.navbar.ridgeSpecular ? "1" : "0",
-              } as React.CSSProperties
-            }
-            className="liquid-glass-nav pointer-events-auto hidden md:flex items-center justify-center relative max-w-[532px] w-full h-[64px] lg:h-[70px] px-3 select-none"
+          <div
+            id="navbar-stage"
+            className="liquid-glass-stage pointer-events-auto hidden md:flex items-center justify-center max-w-[532px] w-full h-[64px] lg:h-[70px]"
           >
-            {/* Content Container Frame 4 (responsive padding and gap) */}
-            <div className="relative z-10 flex items-center justify-between gap-[20px] lg:gap-[40px] px-2 w-full h-full">
+            <nav
+              onMouseMove={handleNavMouseMove}
+              onMouseEnter={() => setIsNavHovered(true)}
+              onMouseLeave={handleNavMouseLeave}
+              style={
+                {
+                  "--mouse-x": `${mousePos.x}%`,
+                  "--mouse-y": `${mousePos.y}%`,
+                  "--mx": `${mousePos.x}%`,
+                  "--my": `${mousePos.y}%`,
+                  "--nav-glow-opacity": config.navbar.sheenEnabled
+                    ? (isNavHovered ? Math.min(1, config.navbar.sheenIntensity * 1.8) : config.navbar.sheenIntensity)
+                    : 0,
+                  "--nav-ridge-opacity": config.navbar.ridgeSpecular ? "1" : "0",
+                } as React.CSSProperties
+              }
+              className="liquid-glass-nav w-full h-full px-3 select-none flex items-center justify-center relative"
+            >
+              {/* Colored Refractive Contamination Layer */}
+              <div className="glass-tint" />
 
-              {/* Tab - Active Home Capsule */}
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveTab("Home");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                className={`flex items-center justify-center w-[70px] lg:w-[75px] h-[44px] lg:h-[50px] rounded-[40px] transition-all duration-200 ${activeTab === "Home"
-                    ? isDark
-                      ? "liquid-glass-tab-active text-[#38BDF8] font-semibold"
-                      : "liquid-glass-tab-active text-[#0958A7] font-semibold"
-                    : isDark
-                      ? "text-[#94A3B8] hover:text-white font-medium"
-                      : "text-[#48525A] hover:text-[#0958A7] font-medium"
-                  } font-sans text-[13px] lg:text-[14px] leading-[21px]`}
-              >
-                Home
-              </a>
+              {/* Content Container Frame 4 (responsive padding and gap) */}
+              <div className="relative z-10 flex items-center justify-between gap-[20px] lg:gap-[40px] px-2 w-full h-full">
 
-              {/* Frame 3: Inactive links with responsive gap */}
-              <div className="flex items-center gap-[20px] lg:gap-[40px]">
-                {navItems.map((item) => {
-                  const isActive = activeTab === item.name;
-                  return (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => setActiveTab(item.name)}
-                      className={`font-sans text-[13px] lg:text-[14px] leading-[21px] transition-all whitespace-nowrap ${isActive
-                          ? isDark
-                            ? "liquid-glass-tab-active text-[#38BDF8] font-semibold flex items-center justify-center h-[44px] lg:h-[50px] px-3 lg:px-4"
-                            : "liquid-glass-tab-active text-[#0958A7] font-semibold flex items-center justify-center h-[44px] lg:h-[50px] px-3 lg:px-4"
-                          : isDark
-                            ? "text-[#94A3B8] hover:text-white font-medium"
-                            : "text-[#48525A] hover:text-[#0958A7] font-medium"
-                        }`}
-                    >
-                      {item.name}
-                    </a>
-                  );
-                })}
+                {/* Tab - Active Home Capsule */}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveTab("Home");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`flex items-center justify-center w-[70px] lg:w-[75px] h-[44px] lg:h-[50px] rounded-[40px] transition-all duration-200 ${activeTab === "Home"
+                      ? isDark
+                        ? "liquid-glass-tab-active text-[#38BDF8] font-semibold"
+                        : "liquid-glass-tab-active text-[#0958A7] font-semibold"
+                      : isDark
+                        ? "text-[#94A3B8] hover:text-white font-medium"
+                        : "text-[#48525A] hover:text-[#0958A7] font-medium"
+                    } font-sans text-[13px] lg:text-[14px] leading-[21px]`}
+                >
+                  Home
+                </a>
+
+                {/* Frame 3: Inactive links with responsive gap */}
+                <div className="flex items-center gap-[20px] lg:gap-[40px]">
+                  {navItems.map((item) => {
+                    const isActive = activeTab === item.name;
+                    return (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setActiveTab(item.name)}
+                        className={`font-sans text-[13px] lg:text-[14px] leading-[21px] transition-all whitespace-nowrap ${isActive
+                            ? isDark
+                              ? "liquid-glass-tab-active text-[#38BDF8] font-semibold flex items-center justify-center h-[44px] lg:h-[50px] px-3 lg:px-4"
+                              : "liquid-glass-tab-active text-[#0958A7] font-semibold flex items-center justify-center h-[44px] lg:h-[50px] px-3 lg:px-4"
+                            : isDark
+                              ? "text-[#94A3B8] hover:text-white font-medium"
+                              : "text-[#48525A] hover:text-[#0958A7] font-medium"
+                          }`}
+                      >
+                        {item.name}
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          </nav>
+            </nav>
+          </div>
 
           {/* Desktop Right Controls - Separated standalone floating buttons */}
           <div className="pointer-events-auto hidden md:flex items-center justify-end gap-3.5 shrink-0">

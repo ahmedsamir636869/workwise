@@ -63,6 +63,18 @@ export function LiquidGlassProvider({ children }: { children: React.ReactNode })
     root.style.setProperty("--button-blur", `${cfg.global.buttonBlur}px`);
     root.style.setProperty("--global-contrast", `${cfg.global.contrastBoost}%`);
     root.style.setProperty("--global-brightness", `${cfg.global.brightnessBoost}%`);
+
+    // Multi-Glass Header Custom Properties
+    root.style.setProperty("--glass-bg-top", cfg.navbar.glassBgTop ?? "rgba(255,255,255,.13)");
+    root.style.setProperty("--glass-bg-bottom", cfg.navbar.glassBgBottom ?? "rgba(255,255,255,.055)");
+    root.style.setProperty("--glass-border", cfg.navbar.glassBorder ?? "rgba(255,255,255,.42)");
+    root.style.setProperty("--glass-highlight", cfg.navbar.glassHighlight ?? "rgba(255,255,255,.68)");
+    root.style.setProperty("--glass-shadow", cfg.navbar.glassShadow ?? "rgba(0,0,0,.22)");
+    root.style.setProperty("--glass-blur", `${cfg.navbar.glassBlur ?? cfg.navbar.blur ?? 15}px`);
+    root.style.setProperty("--glass-sat", `${cfg.navbar.glassSat ?? cfg.navbar.saturation ?? 145}%`);
+    root.style.setProperty("--glass-brightness", String(cfg.navbar.glassBrightness ?? 1.03));
+    root.style.setProperty("--glass-tint", cfg.navbar.glassTint ?? "rgba(190,220,255,.05)");
+    root.style.setProperty("--inner-dark", cfg.navbar.innerDark ?? "rgba(30,40,55,.045)");
   }, []);
 
   // Sync to localStorage and CSS variables

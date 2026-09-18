@@ -76,9 +76,41 @@ export default function LiquidGlassStudioPage() {
 
   const handleNavMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    const x = px * 100;
+    const y = py * 100;
+    const tiltY = (px - 0.5) * 2.3;
+    const tiltX = (py - 0.5) * -1.6;
+
     setMousePos({ x, y });
+
+    const nav = e.currentTarget;
+    nav.style.setProperty("--mx", `${x}%`);
+    nav.style.setProperty("--my", `${y}%`);
+    nav.style.setProperty("--tilt-y", `${tiltY}deg`);
+    nav.style.setProperty("--tilt-x", `${tiltX}deg`);
+
+    const stage = document.getElementById("admin-navbar-stage");
+    if (stage) {
+      stage.style.setProperty("--mx", `${x}%`);
+      stage.style.setProperty("--my", `${y}%`);
+    }
+  };
+
+  const handleNavMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    setIsNavHovered(false);
+    const nav = e.currentTarget;
+    nav.style.setProperty("--mx", "50%");
+    nav.style.setProperty("--my", "50%");
+    nav.style.setProperty("--tilt-x", "0deg");
+    nav.style.setProperty("--tilt-y", "0deg");
+
+    const stage = document.getElementById("admin-navbar-stage");
+    if (stage) {
+      stage.style.setProperty("--mx", "50%");
+      stage.style.setProperty("--my", "50%");
+    }
   };
 
   // Optical physics calculations for live telemetry display
@@ -799,6 +831,145 @@ export default function LiquidGlassStudioPage() {
                   className="w-full accent-emerald-500"
                 />
               </div>
+
+              {/* Multi-Glass Header Styles */}
+              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                    Multi-Glass Header Styles
+                  </div>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">
+                    Presets Engine
+                  </span>
+                </div>
+
+                {/* Glass Blur & Saturation & Brightness */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-slate-400">Glass Blur</span>
+                      <span className="text-blue-400 font-mono font-semibold">{config.navbar.glassBlur ?? 15}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="4"
+                      max="45"
+                      step="1"
+                      value={config.navbar.glassBlur ?? 15}
+                      onChange={(e) => updateNavbar({ glassBlur: Number(e.target.value) })}
+                      className="w-full accent-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-slate-400">Glass Sat</span>
+                      <span className="text-blue-400 font-mono font-semibold">{config.navbar.glassSat ?? 145}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="100"
+                      max="220"
+                      step="5"
+                      value={config.navbar.glassSat ?? 145}
+                      onChange={(e) => updateNavbar({ glassSat: Number(e.target.value) })}
+                      className="w-full accent-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[11px] mb-1">
+                      <span className="text-slate-400">Brightness</span>
+                      <span className="text-blue-400 font-mono font-semibold">{config.navbar.glassBrightness ?? 1.03}x</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.8"
+                      max="1.2"
+                      step="0.01"
+                      value={config.navbar.glassBrightness ?? 1.03}
+                      onChange={(e) => updateNavbar({ glassBrightness: Number(e.target.value) })}
+                      className="w-full accent-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Color / Gradient inputs */}
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                      Glass Background Top
+                    </label>
+                    <input
+                      type="text"
+                      value={config.navbar.glassBgTop ?? "rgba(255,255,255,.13)"}
+                      onChange={(e) => updateNavbar({ glassBgTop: e.target.value })}
+                      className="w-full px-2.5 py-1 text-[11px] font-mono bg-slate-950 border border-slate-700 rounded-lg text-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                      Glass Background Bottom
+                    </label>
+                    <input
+                      type="text"
+                      value={config.navbar.glassBgBottom ?? "rgba(255,255,255,.055)"}
+                      onChange={(e) => updateNavbar({ glassBgBottom: e.target.value })}
+                      className="w-full px-2.5 py-1 text-[11px] font-mono bg-slate-950 border border-slate-700 rounded-lg text-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                      Glass Border Rim
+                    </label>
+                    <input
+                      type="text"
+                      value={config.navbar.glassBorder ?? "rgba(255,255,255,.42)"}
+                      onChange={(e) => updateNavbar({ glassBorder: e.target.value })}
+                      className="w-full px-2.5 py-1 text-[11px] font-mono bg-slate-950 border border-slate-700 rounded-lg text-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                      Caustic Highlight
+                    </label>
+                    <input
+                      type="text"
+                      value={config.navbar.glassHighlight ?? "rgba(255,255,255,.68)"}
+                      onChange={(e) => updateNavbar({ glassHighlight: e.target.value })}
+                      className="w-full px-2.5 py-1 text-[11px] font-mono bg-slate-950 border border-slate-700 rounded-lg text-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                      Glass Tint Reflection
+                    </label>
+                    <input
+                      type="text"
+                      value={config.navbar.glassTint ?? "rgba(190,220,255,.05)"}
+                      onChange={(e) => updateNavbar({ glassTint: e.target.value })}
+                      className="w-full px-2.5 py-1 text-[11px] font-mono bg-slate-950 border border-slate-700 rounded-lg text-slate-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                      Inner Dark Depth
+                    </label>
+                    <input
+                      type="text"
+                      value={config.navbar.innerDark ?? "rgba(30,40,55,.045)"}
+                      onChange={(e) => updateNavbar({ innerDark: e.target.value })}
+                      className="w-full px-2.5 py-1 text-[11px] font-mono bg-slate-950 border border-slate-700 rounded-lg text-slate-200"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -935,57 +1106,63 @@ export default function LiquidGlassStudioPage() {
                 1. Liquid Glass Navbar Capsule (Squircle Bezel)
               </span>
 
-              <nav
-                onMouseMove={handleNavMouseMove}
-                onMouseEnter={() => setIsNavHovered(true)}
-                onMouseLeave={() => setIsNavHovered(false)}
-                style={
-                  {
-                    "--mouse-x": `${mousePos.x}%`,
-                    "--mouse-y": `${mousePos.y}%`,
-                    "--nav-glow-opacity": config.navbar.sheenEnabled
-                      ? (isNavHovered ? Math.min(1, config.navbar.sheenIntensity * 1.8) : config.navbar.sheenIntensity)
-                      : 0,
-                    "--nav-ridge-opacity": config.navbar.ridgeSpecular ? "1" : "0",
-                  } as React.CSSProperties
-                }
-                className="liquid-glass-nav w-full h-[68px] px-3 flex items-center justify-between select-none shadow-2xl transition-all"
-              >
-                <div className="relative z-10 flex items-center justify-between w-full px-2">
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActiveTab("Home");
-                    }}
-                    className={`flex items-center justify-center w-[75px] h-[46px] rounded-[40px] text-xs font-semibold transition-all ${
-                      activeTab === "Home"
-                        ? "liquid-glass-tab-active text-[#0958A7]"
-                        : "text-white/80 hover:text-white"
-                    }`}
-                  >
-                    Home
-                  </a>
+              <div id="admin-navbar-stage" className="liquid-glass-stage w-full">
+                <nav
+                  onMouseMove={handleNavMouseMove}
+                  onMouseEnter={() => setIsNavHovered(true)}
+                  onMouseLeave={handleNavMouseLeave}
+                  style={
+                    {
+                      "--mouse-x": `${mousePos.x}%`,
+                      "--mouse-y": `${mousePos.y}%`,
+                      "--mx": `${mousePos.x}%`,
+                      "--my": `${mousePos.y}%`,
+                      "--nav-glow-opacity": config.navbar.sheenEnabled
+                        ? (isNavHovered ? Math.min(1, config.navbar.sheenIntensity * 1.8) : config.navbar.sheenIntensity)
+                        : 0,
+                      "--nav-ridge-opacity": config.navbar.ridgeSpecular ? "1" : "0",
+                    } as React.CSSProperties
+                  }
+                  className="liquid-glass-nav w-full h-[68px] px-3 flex items-center justify-between select-none shadow-2xl transition-all"
+                >
+                  <div className="glass-tint" />
 
-                  {["Jobs", "How it Works", "About Us", "Contact"].map((tab) => (
+                  <div className="relative z-10 flex items-center justify-between w-full px-2">
                     <a
-                      key={tab}
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        setActiveTab(tab);
+                        setActiveTab("Home");
                       }}
-                      className={`text-xs transition-all ${
-                        activeTab === tab
-                          ? "liquid-glass-tab-active text-[#0958A7] font-semibold px-3.5 py-1.5"
-                          : "text-white/80 hover:text-white font-medium"
+                      className={`flex items-center justify-center w-[75px] h-[46px] rounded-[40px] text-xs font-semibold transition-all ${
+                        activeTab === "Home"
+                          ? "liquid-glass-tab-active text-[#0958A7]"
+                          : "text-white/80 hover:text-white"
                       }`}
                     >
-                      {tab}
+                      Home
                     </a>
-                  ))}
-                </div>
-              </nav>
+
+                    {["Jobs", "How it Works", "About Us", "Contact"].map((tab) => (
+                      <a
+                        key={tab}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setActiveTab(tab);
+                        }}
+                        className={`text-xs transition-all ${
+                          activeTab === tab
+                            ? "liquid-glass-tab-active text-[#0958A7] font-semibold px-3.5 py-1.5"
+                            : "text-white/80 hover:text-white font-medium"
+                        }`}
+                      >
+                        {tab}
+                      </a>
+                    ))}
+                  </div>
+                </nav>
+              </div>
             </div>
 
             {/* PREVIEW 2: Apple Music / Safari Liquid Glass Searchbox */}

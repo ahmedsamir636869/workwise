@@ -895,6 +895,145 @@ export default function LiquidGlassCMSDrawer() {
                       className="w-full accent-emerald-600"
                     />
                   </div>
+
+                  {/* SECTION: Liquid Glass Header Optical Styling (Multi-Glass Engine) */}
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                        Multi-Glass Header Styles
+                      </div>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-mono">
+                        Presets Engine
+                      </span>
+                    </div>
+
+                    {/* Glass Blur & Saturation & Brightness */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-slate-600 dark:text-slate-400">Glass Blur</span>
+                          <span className="text-blue-500 font-mono font-semibold">{config.navbar.glassBlur ?? 15}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="4"
+                          max="45"
+                          step="1"
+                          value={config.navbar.glassBlur ?? 15}
+                          onChange={(e) => updateNavbar({ glassBlur: Number(e.target.value) })}
+                          className="w-full accent-blue-600"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-slate-600 dark:text-slate-400">Glass Sat</span>
+                          <span className="text-blue-500 font-mono font-semibold">{config.navbar.glassSat ?? 145}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="100"
+                          max="220"
+                          step="5"
+                          value={config.navbar.glassSat ?? 145}
+                          onChange={(e) => updateNavbar({ glassSat: Number(e.target.value) })}
+                          className="w-full accent-blue-600"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-slate-600 dark:text-slate-400">Brightness</span>
+                          <span className="text-blue-500 font-mono font-semibold">{config.navbar.glassBrightness ?? 1.03}x</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0.8"
+                          max="1.2"
+                          step="0.01"
+                          value={config.navbar.glassBrightness ?? 1.03}
+                          onChange={(e) => updateNavbar({ glassBrightness: Number(e.target.value) })}
+                          className="w-full accent-blue-600"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Color / Gradient inputs */}
+                    <div className="grid grid-cols-2 gap-2.5 pt-1">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          Glass Background Top
+                        </label>
+                        <input
+                          type="text"
+                          value={config.navbar.glassBgTop ?? "rgba(255,255,255,.13)"}
+                          onChange={(e) => updateNavbar({ glassBgTop: e.target.value })}
+                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          Glass Background Bottom
+                        </label>
+                        <input
+                          type="text"
+                          value={config.navbar.glassBgBottom ?? "rgba(255,255,255,.055)"}
+                          onChange={(e) => updateNavbar({ glassBgBottom: e.target.value })}
+                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          Glass Border Rim
+                        </label>
+                        <input
+                          type="text"
+                          value={config.navbar.glassBorder ?? "rgba(255,255,255,.42)"}
+                          onChange={(e) => updateNavbar({ glassBorder: e.target.value })}
+                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          Caustic Highlight
+                        </label>
+                        <input
+                          type="text"
+                          value={config.navbar.glassHighlight ?? "rgba(255,255,255,.68)"}
+                          onChange={(e) => updateNavbar({ glassHighlight: e.target.value })}
+                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          Glass Tint Reflection
+                        </label>
+                        <input
+                          type="text"
+                          value={config.navbar.glassTint ?? "rgba(190,220,255,.05)"}
+                          onChange={(e) => updateNavbar({ glassTint: e.target.value })}
+                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          Inner Dark Depth
+                        </label>
+                        <input
+                          type="text"
+                          value={config.navbar.innerDark ?? "rgba(30,40,55,.045)"}
+                          onChange={(e) => updateNavbar({ innerDark: e.target.value })}
+                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
