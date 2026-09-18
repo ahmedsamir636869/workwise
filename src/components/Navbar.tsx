@@ -50,6 +50,8 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
 
     const view = document.createElement("div");
     view.className = "lens-view";
+    const prism = document.createElement("div");
+    prism.className = "lens-prism";
     const scene = document.createElement("div");
     scene.className = "lens-scene";
     const sheen = document.createElement("div");
@@ -67,10 +69,10 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     optics.className = "lens-optics";
     optics.append(scene);
     view.append(optics);
-    lens.append(view, sheen);
+    lens.append(view, prism, sheen);
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const zoom = 0.96;
+    const zoom = 1.04; // Authentic optical glass magnification
     const opticalResolution = 3;
     let center = 0,
       width = 0,
@@ -124,8 +126,8 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           const nx = px - Math.max(-halfLine, Math.min(halfLine, px));
           const distance = Math.hypot(nx, py);
           const depth = Math.min(1, distance / radius);
-          const rim = Math.max(0, (depth - 0.55) / 0.45);
-          const bend = Math.sin((rim * Math.PI) / 2) ** 2 * 0.46;
+          const rim = Math.max(0, (depth - 0.48) / 0.52);
+          const bend = Math.sin((rim * Math.PI) / 2) ** 2 * 0.36;
           const i = (y * W + x) * 4;
           pixels.data[i] = Math.round(255 * (0.5 + (distance ? nx / distance : 0) * bend));
           pixels.data[i + 1] = Math.round(255 * (0.5 + (distance ? py / distance : 0) * bend));
@@ -166,7 +168,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     }
 
     function moveLens(nextCenter: number) {
-      targetWidth = lit.offsetWidth * 1.24;
+      targetWidth = Math.max(92, Math.round(lit.offsetWidth + 26));
       targetCenter = Math.max(
         targetWidth / 2 - 4,
         Math.min(nav!.clientWidth - targetWidth / 2 + 4, nextCenter)
@@ -299,7 +301,7 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           {/* Desktop Center Navigation Capsule - Floating optical liquid glass island with dynamic lens */}
           <nav
             ref={navRef}
-            className="navigation liquid-glass-nav pointer-events-auto hidden md:flex items-center justify-between max-w-[532px] w-full h-[58px] select-none relative"
+            className="navigation pointer-events-auto hidden md:flex items-center justify-between max-w-[532px] w-full h-[54px] select-none relative"
           >
             <div className="glass-lens" />
             {navLinks.map((item) => (

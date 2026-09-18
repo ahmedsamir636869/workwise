@@ -27,18 +27,6 @@ export interface NavbarGlassSettings {
   dispersionSpread: number; // 0..15 chromatic RGB fringe spread (e.g. 3.5)
   innerShadowBlur: number; // 0..40 inner bevel shadow (e.g. 16)
   innerShadowSpread: number; // 0..20 inner bevel spread (e.g. 4)
-
-  // Liquid Glass Multi-Glass Header Specific Properties
-  glassBgTop?: string;
-  glassBgBottom?: string;
-  glassBorder?: string;
-  glassHighlight?: string;
-  glassShadow?: string;
-  glassBlur?: number;
-  glassSat?: number;
-  glassBrightness?: number;
-  glassTint?: string;
-  innerDark?: string;
 }
 
 export interface GlobalGlassSettings {
@@ -71,12 +59,6 @@ export interface LiquidGlassConfig {
 }
 
 export type PresetKey =
-  | "clear"
-  | "crystal"
-  | "frost"
-  | "smoke"
-  | "prism"
-  | "lens"
   | "visionos"
   | "macos-sequoia"
   | "ios-fluid"

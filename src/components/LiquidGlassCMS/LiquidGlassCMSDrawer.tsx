@@ -44,18 +44,6 @@ export default function LiquidGlassCMSDrawer() {
     errorMessage,
   } = useLiquidGlass();
 
-  // Live Optical Physics Engine calculations for new liquid glass header:
-  const ior = config.global.refractiveIndex;
-  const dDist = config.navbar.refractionDistance ?? 42;
-  const dispScale = config.navbar.displacementScale;
-  const thicknessH = Math.round(config.global.thickness * 24);
-  const sinMax = 0.85; // incident ray angle representation (~58°)
-  const sinRef = Math.min(0.99, sinMax / ior);
-  const theta1Deg = Math.round((Math.asin(sinMax) * 180) / Math.PI);
-  const theta2Deg = Math.round((Math.asin(sinRef) * 180) / Math.PI);
-  const tanDiff = Math.tan(((theta1Deg - theta2Deg) * Math.PI) / 180);
-  const estimatedShiftPx = Math.round((thicknessH + dDist) * tanDiff * (dispScale / 30) * 10) / 10;
-
   const handleSave = async () => {
     setSaveMessage("Saving to Supabase...");
     const res = await saveToSupabase();
@@ -86,22 +74,20 @@ export default function LiquidGlassCMSDrawer() {
           {/* Pulsing indicator */}
           <span className="relative flex h-2.5 w-2.5">
             <span
-              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                syncStatus === "synced"
+              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${syncStatus === "synced"
                   ? "bg-emerald-400"
                   : syncStatus === "saving"
-                  ? "bg-amber-400"
-                  : "bg-blue-400"
-              }`}
+                    ? "bg-amber-400"
+                    : "bg-blue-400"
+                }`}
             />
             <span
-              className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                syncStatus === "synced"
+              className={`relative inline-flex rounded-full h-2.5 w-2.5 ${syncStatus === "synced"
                   ? "bg-emerald-500"
                   : syncStatus === "saving"
-                  ? "bg-amber-500"
-                  : "bg-blue-500"
-              }`}
+                    ? "bg-amber-500"
+                    : "bg-blue-500"
+                }`}
             />
           </span>
 
@@ -137,21 +123,20 @@ export default function LiquidGlassCMSDrawer() {
                     <Cloud className="w-3.5 h-3.5" />
                     <span>Supabase:</span>
                     <span
-                      className={`font-semibold ${
-                        syncStatus === "synced"
+                      className={`font-semibold ${syncStatus === "synced"
                           ? "text-emerald-600 dark:text-emerald-400"
                           : syncStatus === "saving"
-                          ? "text-amber-600"
-                          : "text-blue-600 dark:text-blue-400"
-                      }`}
+                            ? "text-amber-600"
+                            : "text-blue-600 dark:text-blue-400"
+                        }`}
                     >
                       {syncStatus === "synced"
                         ? "Connected (fgcbzsfcfwzxjoitftmd)"
                         : syncStatus === "saving"
-                        ? "Saving..."
-                        : syncStatus === "local-only"
-                        ? "Local Storage Cache"
-                        : "Ready"}
+                          ? "Saving..."
+                          : syncStatus === "local-only"
+                            ? "Local Storage Cache"
+                            : "Ready"}
                     </span>
                   </div>
                 </div>
@@ -190,11 +175,10 @@ export default function LiquidGlassCMSDrawer() {
                     <button
                       key={preset.key}
                       onClick={() => applyPreset(preset.key)}
-                      className={`px-2 py-1.5 rounded-lg text-left transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer border ${
-                        isActive
+                      className={`px-2 py-1.5 rounded-lg text-left transition-all text-[11px] font-medium flex items-center gap-1.5 cursor-pointer border ${isActive
                           ? "bg-blue-50 dark:bg-blue-900/40 border-[#0958A7] text-[#0958A7] dark:text-blue-300 shadow-sm font-semibold"
                           : "bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
-                      }`}
+                        }`}
                     >
                       <span
                         className="w-2 h-2 rounded-full shrink-0"
@@ -244,44 +228,40 @@ export default function LiquidGlassCMSDrawer() {
             <div className="flex border-b border-slate-200 dark:border-slate-800 px-5 pt-2">
               <button
                 onClick={() => setActiveTab("optics")}
-                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === "optics"
+                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "optics"
                     ? "border-[#0958A7] text-[#0958A7] dark:text-blue-400"
                     : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <Zap className="w-3.5 h-3.5" />
                 Optics & Physics
               </button>
               <button
                 onClick={() => setActiveTab("lighting")}
-                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === "lighting"
+                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "lighting"
                     ? "border-[#0958A7] text-[#0958A7] dark:text-blue-400"
                     : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <Sun className="w-3.5 h-3.5" />
                 Lighting & Specular
               </button>
               <button
                 onClick={() => setActiveTab("material")}
-                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === "material"
+                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "material"
                     ? "border-[#0958A7] text-[#0958A7] dark:text-blue-400"
                     : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <Palette className="w-3.5 h-3.5" />
                 Material Body
               </button>
               <button
                 onClick={() => setActiveTab("database")}
-                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === "database"
+                className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "database"
                     ? "border-[#0958A7] text-[#0958A7] dark:text-blue-400"
                     : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-                }`}
+                  }`}
               >
                 <Database className="w-3.5 h-3.5" />
                 Cloud Sync
@@ -293,40 +273,15 @@ export default function LiquidGlassCMSDrawer() {
               {/* TAB 1: OPTICS & PHYSICS CONTROLS */}
               {activeTab === "optics" && (
                 <div className="space-y-4">
-                  {/* New Liquid Glass Header Snell's Law Optical Refraction Engine Banner */}
-                  <div className="p-3.5 bg-gradient-to-br from-blue-50/90 via-indigo-50/70 to-blue-100/40 dark:from-blue-950/40 dark:via-slate-900/60 dark:to-indigo-950/30 rounded-xl border border-blue-200/80 dark:border-blue-800/60 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-[#0958A7] dark:text-blue-400 shrink-0" />
-                        <span className="text-xs font-bold text-[#0958A7] dark:text-blue-300">
-                          Liquid Header Snell Refraction Engine
-                        </span>
+                  <div className="p-3 bg-blue-50/60 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/30 flex items-start gap-2.5">
+                    <Zap className="w-4 h-4 text-[#0958A7] dark:text-blue-400 mt-0.5 shrink-0" />
+                    <div className="text-xs">
+                      <div className="font-semibold text-[#0958A7] dark:text-blue-300">
+                        Snell's Law Optical Refraction Engine
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-600/10 dark:bg-blue-400/15 text-[#0958A7] dark:text-blue-300 font-bold border border-blue-500/20">
-                        Δ = {estimatedShiftPx}px shift
-                      </span>
-                    </div>
-
-                    <div className="p-2.5 rounded-lg bg-white/80 dark:bg-slate-900/85 border border-blue-100 dark:border-slate-800 font-mono text-[11px] text-slate-800 dark:text-slate-200 flex flex-col gap-1.5 shadow-xs">
-                      <div className="font-semibold text-blue-700 dark:text-blue-300 flex items-center justify-between">
-                        <span>Δ = (h + d) • tan(θ₁ - θ₂) • (S / 30) • cos(θ_tilt)</span>
-                        <span className="text-[9px] text-slate-400 font-normal">New Header Engine</span>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Calculates lateral light deflection: Δ = (h + d) • tan(θ₁ - θ₂).
                       </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-1 border-t border-slate-100 dark:border-slate-800">
-                        <span>h = {thicknessH}px</span>
-                        <span>•</span>
-                        <span>d = {dDist}px</span>
-                        <span>•</span>
-                        <span>θ₁ = {theta1Deg}°</span>
-                        <span>•</span>
-                        <span>θ₂ = {theta2Deg}° (n={ior.toFixed(2)})</span>
-                        <span>•</span>
-                        <span className="text-blue-600 dark:text-blue-400 font-semibold">S = {dispScale} scale</span>
-                      </div>
-                    </div>
-
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
-                      Calculates dynamic lateral ray deflection across the 3D tilted liquid glass capsule with continuous Snell refraction.
                     </div>
                   </div>
 
@@ -401,11 +356,10 @@ export default function LiquidGlassCMSDrawer() {
                               updateNavbar({ surfaceProfile: prof });
                               updateGlobal({ surfaceProfile: prof });
                             }}
-                            className={`py-1.5 px-2 rounded-lg text-xs font-semibold capitalize transition-all border ${
-                              isCur
+                            className={`py-1.5 px-2 rounded-lg text-xs font-semibold capitalize transition-all border ${isCur
                                 ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                                 : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
-                            }`}
+                              }`}
                           >
                             {prof === "squircle" ? "Squircle (Apple)" : prof}
                           </button>
@@ -932,145 +886,6 @@ export default function LiquidGlassCMSDrawer() {
                       className="w-full accent-emerald-600"
                     />
                   </div>
-
-                  {/* SECTION: Liquid Glass Header Optical Styling (Multi-Glass Engine) */}
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                        Multi-Glass Header Styles
-                      </div>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-mono">
-                        Presets Engine
-                      </span>
-                    </div>
-
-                    {/* Glass Blur & Saturation & Brightness */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <div className="flex justify-between text-[11px] mb-1">
-                          <span className="text-slate-600 dark:text-slate-400">Glass Blur</span>
-                          <span className="text-blue-500 font-mono font-semibold">{config.navbar.glassBlur ?? 15}px</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="4"
-                          max="45"
-                          step="1"
-                          value={config.navbar.glassBlur ?? 15}
-                          onChange={(e) => updateNavbar({ glassBlur: Number(e.target.value) })}
-                          className="w-full accent-blue-600"
-                        />
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between text-[11px] mb-1">
-                          <span className="text-slate-600 dark:text-slate-400">Glass Sat</span>
-                          <span className="text-blue-500 font-mono font-semibold">{config.navbar.glassSat ?? 145}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="100"
-                          max="220"
-                          step="5"
-                          value={config.navbar.glassSat ?? 145}
-                          onChange={(e) => updateNavbar({ glassSat: Number(e.target.value) })}
-                          className="w-full accent-blue-600"
-                        />
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between text-[11px] mb-1">
-                          <span className="text-slate-600 dark:text-slate-400">Brightness</span>
-                          <span className="text-blue-500 font-mono font-semibold">{config.navbar.glassBrightness ?? 1.03}x</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0.8"
-                          max="1.2"
-                          step="0.01"
-                          value={config.navbar.glassBrightness ?? 1.03}
-                          onChange={(e) => updateNavbar({ glassBrightness: Number(e.target.value) })}
-                          className="w-full accent-blue-600"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Color / Gradient inputs */}
-                    <div className="grid grid-cols-2 gap-2.5 pt-1">
-                      <div>
-                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
-                          Glass Background Top
-                        </label>
-                        <input
-                          type="text"
-                          value={config.navbar.glassBgTop ?? "rgba(255,255,255,.13)"}
-                          onChange={(e) => updateNavbar({ glassBgTop: e.target.value })}
-                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
-                          Glass Background Bottom
-                        </label>
-                        <input
-                          type="text"
-                          value={config.navbar.glassBgBottom ?? "rgba(255,255,255,.055)"}
-                          onChange={(e) => updateNavbar({ glassBgBottom: e.target.value })}
-                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
-                          Glass Border Rim
-                        </label>
-                        <input
-                          type="text"
-                          value={config.navbar.glassBorder ?? "rgba(255,255,255,.42)"}
-                          onChange={(e) => updateNavbar({ glassBorder: e.target.value })}
-                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
-                          Caustic Highlight
-                        </label>
-                        <input
-                          type="text"
-                          value={config.navbar.glassHighlight ?? "rgba(255,255,255,.68)"}
-                          onChange={(e) => updateNavbar({ glassHighlight: e.target.value })}
-                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
-                          Glass Tint Reflection
-                        </label>
-                        <input
-                          type="text"
-                          value={config.navbar.glassTint ?? "rgba(190,220,255,.05)"}
-                          onChange={(e) => updateNavbar({ glassTint: e.target.value })}
-                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-medium text-slate-700 dark:text-slate-300 block mb-1">
-                          Inner Dark Depth
-                        </label>
-                        <input
-                          type="text"
-                          value={config.navbar.innerDark ?? "rgba(30,40,55,.045)"}
-                          onChange={(e) => updateNavbar({ innerDark: e.target.value })}
-                          className="w-full px-2.5 py-1 text-[11px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
-                        />
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -1146,11 +961,10 @@ export default function LiquidGlassCMSDrawer() {
             <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex flex-col gap-2">
               {saveMessage && (
                 <div
-                  className={`text-xs text-center py-1.5 px-2 rounded-lg font-medium ${
-                    saveMessage.includes("Error")
+                  className={`text-xs text-center py-1.5 px-2 rounded-lg font-medium ${saveMessage.includes("Error")
                       ? "bg-rose-50 text-rose-600 border border-rose-200"
                       : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  }`}
+                    }`}
                 >
                   {saveMessage}
                 </div>

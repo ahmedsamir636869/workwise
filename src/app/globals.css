@@ -232,7 +232,7 @@ html {
 }
 
 /* ============================================================================
-   Optical Glass Lens Hover System (VisionOS / Reducing Refractive Lens)
+   VisionOS Physical Optical Liquid Glass Dock & Lens Hover System
    ============================================================================ */
 
 .navigation {
@@ -241,22 +241,29 @@ html {
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 6px;
+  padding: 4px;
   border-radius: 999px;
-  background: rgba(47, 48, 51, 0.76);
-  border: 1px solid #ffffff17;
-  box-shadow: inset 0 1px 0 #ffffff14, 0 12px 32px #0004;
-  backdrop-filter: blur(24px) saturate(155%);
-  -webkit-backdrop-filter: blur(24px) saturate(155%);
+  background: rgba(30, 32, 38, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 16px 36px -6px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(24px) saturate(160%) brightness(105%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%) brightness(105%);
   min-width: 0;
+  overflow: visible;
 }
 
 html:not(.dark) .navigation {
-  background: rgba(255, 255, 255, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 12px 32px rgba(9, 88, 167, 0.12);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 14px 32px -4px rgba(9, 88, 167, 0.14),
+    0 4px 10px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(24px) saturate(180%) brightness(102%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(102%);
 }
 
 .navigation a {
@@ -264,69 +271,160 @@ html:not(.dark) .navigation {
   z-index: 2;
   flex: 1;
   text-align: center;
-  padding: 12px 10px;
+  padding: 11px 14px;
   border-radius: 999px;
-  color: #e8e8ed;
+  color: rgba(255, 255, 255, 0.72);
   text-decoration: none;
   font-size: 14px;
-  font-weight: 550;
-  transition: color 0.2s, transform 0.25s;
+  font-weight: 500;
+  transition: color 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
 }
 
 html:not(.dark) .navigation a {
-  color: #262C31;
+  color: #48525A;
 }
 
 .navigation a[data-lit="true"] {
-  color: #28b8ff;
+  color: #38BDF8;
+  font-weight: 600;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
 }
 
 html:not(.dark) .navigation a[data-lit="true"] {
   color: #0958A7;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(9, 88, 167, 0.3);
 }
 
 .navigation a:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
 .navigation a:focus-visible {
-  outline: 2px solid #35bcff;
+  outline: 2px solid #38BDF8;
   outline-offset: 2px;
 }
 
-/* Refraction comes from a curved displacement field, not painted spectral bands. */
+/* Authentic Elevated 3D Liquid Crystal Glass Lens (Overhanging Floating Capsule) */
 .glass-lens {
   --glow-x: 50%;
   position: absolute;
   pointer-events: none;
   z-index: 3;
   left: 0;
-  top: -3px;
-  bottom: -3px;
-  width: 132px;
+  top: -4px;
+  bottom: -4px;
+  width: 124px;
   border-radius: 999px;
-  border: 1px solid #ffffff35;
+  border: 1px solid rgba(255, 255, 255, 0.42);
   background: transparent;
   will-change: transform, width;
+  box-shadow:
+    0 12px 28px -3px rgba(0, 0, 0, 0.65),
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.3),
+    inset 0 0 16px rgba(255, 255, 255, 0.08);
 }
 
 html:not(.dark) .glass-lens {
-  border: 1px solid rgba(9, 88, 167, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 12px 26px -3px rgba(9, 88, 167, 0.22),
+    0 4px 10px rgba(0, 0, 0, 0.08),
+    inset 0 1.5px 1px #fff,
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.7),
+    inset 0 0 14px rgba(255, 255, 255, 0.35);
 }
 
+/* Translucent Glass Body */
 .lens-view {
   position: absolute;
   inset: 0;
   overflow: hidden;
   border-radius: inherit;
-  background: #0b0d11;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(38, 42, 50, 0.52) 42%,
+    rgba(20, 22, 28, 0.72) 100%
+  );
+  backdrop-filter: blur(14px) saturate(180%) contrast(106%) brightness(104%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%) contrast(106%) brightness(104%);
 }
 
 html:not(.dark) .lens-view {
-  background: rgba(255, 255, 255, 0.85);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(240, 246, 255, 0.55) 100%
+  );
+  backdrop-filter: blur(14px) saturate(190%) contrast(102%) brightness(102%);
+  -webkit-backdrop-filter: blur(14px) saturate(190%) contrast(102%) brightness(102%);
+}
+
+/* Prismatic Chromatic Aberration Meniscus (Rainbow Light Dispersion) */
+.lens-prism {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    /* Top Curved Meniscus Spectral Dispersion */
+    radial-gradient(ellipse 110% 28px at 50% -3px,
+      transparent 0%,
+      transparent 52%,
+      rgba(255, 45, 85, 0.65) 62%,
+      rgba(255, 204, 0, 0.72) 70%,
+      rgba(52, 199, 89, 0.68) 78%,
+      rgba(0, 199, 255, 0.82) 86%,
+      rgba(88, 86, 214, 0.6) 94%,
+      transparent 100%
+    ),
+    /* Bottom Curved Meniscus Spectral Dispersion */
+    radial-gradient(ellipse 110% 28px at 50% calc(100% + 3px),
+      transparent 0%,
+      transparent 52%,
+      rgba(255, 45, 85, 0.65) 62%,
+      rgba(255, 204, 0, 0.72) 70%,
+      rgba(52, 199, 89, 0.68) 78%,
+      rgba(0, 199, 255, 0.82) 86%,
+      rgba(88, 86, 214, 0.6) 94%,
+      transparent 100%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.95;
+  filter: blur(0.45px);
+}
+
+html:not(.dark) .lens-prism {
+  opacity: 0.75;
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(ellipse 110% 28px at 50% -3px,
+      transparent 0%,
+      transparent 54%,
+      rgba(255, 50, 80, 0.45) 64%,
+      rgba(255, 180, 0, 0.5) 72%,
+      rgba(40, 190, 80, 0.45) 80%,
+      rgba(0, 160, 230, 0.55) 88%,
+      rgba(90, 70, 220, 0.4) 95%,
+      transparent 100%
+    ),
+    radial-gradient(ellipse 110% 28px at 50% calc(100% + 3px),
+      transparent 0%,
+      transparent 54%,
+      rgba(255, 50, 80, 0.45) 64%,
+      rgba(255, 180, 0, 0.5) 72%,
+      rgba(40, 190, 80, 0.45) 80%,
+      rgba(0, 160, 230, 0.55) 88%,
+      rgba(90, 70, 220, 0.4) 95%,
+      transparent 100%
+    );
 }
 
 .lens-optics {
@@ -337,12 +435,8 @@ html:not(.dark) .lens-view {
   height: 300%;
   transform: scale(0.3333333333);
   transform-origin: 0 0;
-  background: #0b0d11;
+  background: transparent;
   filter: url(#glass-refraction);
-}
-
-html:not(.dark) .lens-optics {
-  background: rgba(255, 255, 255, 0.90);
 }
 
 .lens-scene {
@@ -351,36 +445,43 @@ html:not(.dark) .lens-optics {
   top: 0;
   transform-origin: 0 0;
   border-radius: 999px;
-  background: linear-gradient(110deg, #343538, #292a2d);
-  border: 1px solid #ffffff26;
-  box-shadow: inset 0 1px 0 #ffffff0b;
-}
-
-html:not(.dark) .lens-scene {
-  background: linear-gradient(110deg, rgba(255, 255, 255, 0.95), rgba(235, 245, 255, 0.9));
-  border: 1px solid rgba(9, 88, 167, 0.15);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: transparent;
+  pointer-events: none;
 }
 
 .lens-label {
   position: absolute;
   display: grid;
   place-items: center;
-  color: #f5f5f7;
+  color: rgba(255, 255, 255, 0.88);
   font-weight: 550;
   white-space: nowrap;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 html:not(.dark) .lens-label {
   color: #262C31;
+  text-shadow: none;
 }
 
 .lens-label[data-lit="true"] {
-  color: #23b9f5;
+  color: #38BDF8;
+  font-weight: 600;
+  text-shadow:
+    -0.6px 0 1.2px rgba(255, 60, 90, 0.4),
+    0.6px 0 1.2px rgba(0, 190, 255, 0.5),
+    0 0 16px rgba(56, 189, 248, 0.7);
 }
 
 html:not(.dark) .lens-label[data-lit="true"] {
   color: #0958A7;
+  font-weight: 600;
+  text-shadow:
+    -0.5px 0 1px rgba(255, 60, 90, 0.25),
+    0.5px 0 1px rgba(0, 130, 255, 0.35),
+    0 0 12px rgba(9, 88, 167, 0.35);
 }
 
 .lens-sheen {
@@ -388,21 +489,24 @@ html:not(.dark) .lens-label[data-lit="true"] {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(ellipse at var(--glow-x, 50%) 25%, #ffffff08, transparent 65%);
+  z-index: 3;
+  background:
+    radial-gradient(ellipse 90px 36px at var(--glow-x, 50%) 3px, rgba(255, 255, 255, 0.6), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 35%, rgba(255, 255, 255, 0.12) 100%);
+  mix-blend-mode: overlay;
   box-shadow:
-    inset 1px 0 1px #ffffff38,
-    inset -1px 0 1px #ffffff22,
-    inset 0 1px 1px #d8e9ff14,
-    inset 0 -1px 1px #b3dce21c;
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.3);
 }
 
 html:not(.dark) .lens-sheen {
-  background: radial-gradient(ellipse at var(--glow-x, 50%) 25%, rgba(255, 255, 255, 0.55), transparent 65%);
+  background:
+    radial-gradient(ellipse 90px 36px at var(--glow-x, 50%) 3px, rgba(255, 255, 255, 0.9), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, transparent 35%, rgba(255, 255, 255, 0.25) 100%);
+  mix-blend-mode: soft-light;
   box-shadow:
-    inset 1px 0 1px rgba(255, 255, 255, 0.95),
-    inset -1px 0 1px rgba(255, 255, 255, 0.7),
-    inset 0 1px 1px rgba(255, 255, 255, 1),
-    inset 0 -1px 1px rgba(9, 88, 167, 0.15);
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 1),
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.5);
 }
 
 /* Floating Glass Island Pill for Logo on scroll */
