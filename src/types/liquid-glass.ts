@@ -61,6 +61,7 @@ export interface LiquidGlassConfig {
 export type PresetKey =
   | "visionos"
   | "macos-sequoia"
+  | "macos-liquid-glass"
   | "ios-fluid"
   | "pure-crystal"
   | "frosted-ice"

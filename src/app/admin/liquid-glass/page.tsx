@@ -55,6 +55,7 @@ export default function LiquidGlassStudioPage() {
   const [isNavHovered, setIsNavHovered] = useState(false);
   const [switchActive, setSwitchActive] = useState(true);
   const [searchQuery, setSearchQuery] = useState("Senior Frontend Engineer");
+  const [isDraggingGlass, setIsDraggingGlass] = useState(false);
 
   const handleSave = async () => {
     setSaveMessage("Saving to Supabase...");
@@ -1073,6 +1074,28 @@ export default function LiquidGlassStudioPage() {
                   <Moon className="w-5 h-5" />
                 </div>
               </div>
+            </div>
+
+            {/* PREVIEW 6: Apple Liquid Glass Capsule (Lucas Romero macOS recreation) */}
+            <div className="z-10 flex flex-col items-center gap-3 w-full max-w-[480px]">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm border border-white/10 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                6. Apple Liquid Glass (Lucas Romero macOS recreation)
+              </span>
+
+              <div
+                className={`liquid-glass w-full max-w-[380px] select-none ${isDraggingGlass ? "dragging" : ""}`}
+                onMouseDown={() => setIsDraggingGlass(true)}
+                onMouseUp={() => setIsDraggingGlass(false)}
+                onMouseLeave={() => setIsDraggingGlass(false)}
+                role="button"
+                tabIndex={0}
+              >
+                Liquid Glass Effect
+              </div>
+              <span className="text-[11px] text-white/60 font-mono">
+                filter: url(#glass-distortion) • backdrop-filter: blur(3px)
+              </span>
             </div>
           </div>
         </div>
