@@ -94,10 +94,10 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     }
 
     function moveLens(nextCenter: number) {
-      targetWidth = Math.round(lit.offsetWidth + 18);
+      targetWidth = Math.max(96, Math.round(lit.offsetWidth * 1.18 + 14));
       targetCenter = Math.max(
-        targetWidth / 2 - 2,
-        Math.min(nav!.clientWidth - targetWidth / 2 + 2, nextCenter)
+        targetWidth / 2 - 4,
+        Math.min(nav!.clientWidth - targetWidth / 2 + 4, nextCenter)
       );
       if (!initialized) {
         center = targetCenter;

@@ -232,7 +232,7 @@ html {
 }
 
 /* ============================================================================
-   Apple VisionOS Liquid Glass Dock & Active Lens Capsule
+   Authentic Optical Liquid Glass Dock & Refractive Meniscus Lens
    ============================================================================ */
 
 .navigation {
@@ -241,12 +241,12 @@ html {
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 4px;
+  padding: 4px 6px;
   border-radius: 9999px;
-  background: rgba(30, 32, 38, 0.75);
+  background: rgba(45, 47, 52, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    inset 0 1px 0.5px rgba(255, 255, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 16px 36px -4px rgba(0, 0, 0, 0.55),
     0 4px 12px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(24px) saturate(160%);
@@ -256,10 +256,10 @@ html {
 }
 
 html:not(.dark) .navigation {
-  background: rgba(255, 255, 255, 0.70);
+  background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow:
-    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
     0 14px 32px -4px rgba(9, 88, 167, 0.14),
     0 4px 10px rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(24px) saturate(180%);
@@ -268,28 +268,28 @@ html:not(.dark) .navigation {
 
 .navigation a {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   flex: 1;
   text-align: center;
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: 9999px;
-  color: rgba(255, 255, 255, 0.70);
+  color: #e8e8ed;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 550;
   letter-spacing: -0.01em;
-  transition: color 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 0.2s ease, transform 0.2s ease;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
 }
 
 html:not(.dark) .navigation a {
-  color: #4B5563;
+  color: #48525A;
 }
 
 .navigation a:hover {
-  color: rgba(255, 255, 255, 0.95);
+  color: #ffffff;
 }
 
 html:not(.dark) .navigation a:hover {
@@ -297,18 +297,17 @@ html:not(.dark) .navigation a:hover {
 }
 
 .navigation a[data-lit="true"] {
-  color: #38BDF8;
+  color: #28b8ff;
   font-weight: 600;
   text-shadow:
-    0 0 16px rgba(56, 189, 248, 0.5),
-    0 1px 2px rgba(0, 0, 0, 0.3);
+    0 0 16px rgba(40, 184, 255, 0.55),
+    0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 html:not(.dark) .navigation a[data-lit="true"] {
   color: #0958A7;
   font-weight: 600;
-  text-shadow:
-    0 0 12px rgba(9, 88, 167, 0.25);
+  text-shadow: 0 0 12px rgba(9, 88, 167, 0.25);
 }
 
 .navigation a:active {
@@ -316,76 +315,106 @@ html:not(.dark) .navigation a[data-lit="true"] {
 }
 
 .navigation a:focus-visible {
-  outline: 2px solid #38BDF8;
+  outline: 2px solid #28b8ff;
   outline-offset: 2px;
 }
 
-/* VisionOS Overhanging Liquid Glass Capsule */
+/* Authentic Elevated 3D Liquid Crystal Glass Lens (Overhanging Domes) */
 .glass-lens {
   --glow-x: 50%;
   position: absolute;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
   left: 0;
-  top: -2.5px;
-  bottom: -2.5px;
+  top: -6px;
+  bottom: -6px;
   width: 110px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.20);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   background: transparent;
   will-change: transform, width;
   box-shadow:
-    0 8px 20px -2px rgba(0, 0, 0, 0.45),
-    0 2px 6px rgba(0, 0, 0, 0.25),
-    inset 0 1.2px 0.5px rgba(255, 255, 255, 0.40),
-    inset 0 -1px 0.5px rgba(0, 0, 0, 0.25);
+    0 10px 26px -3px rgba(0, 0, 0, 0.65),
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.15);
 }
 
 html:not(.dark) .glass-lens {
-  border: 1px solid rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(255, 255, 255, 0.92);
   box-shadow:
-    0 6px 18px -2px rgba(9, 88, 167, 0.16),
-    0 2px 6px rgba(0, 0, 0, 0.04),
+    0 10px 24px -3px rgba(9, 88, 167, 0.20),
+    0 3px 8px rgba(0, 0, 0, 0.06),
     inset 0 1.5px 0.5px #ffffff,
     inset 0 -1px 0.5px rgba(255, 255, 255, 0.6);
 }
 
-/* Translucent Glass Body */
+/* Translucent Dark Graphite Glass Body */
 .lens-view {
   position: absolute;
   inset: 0;
   overflow: hidden;
   border-radius: inherit;
   background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.11) 0%,
-    rgba(255, 255, 255, 0.04) 45%,
-    rgba(0, 0, 0, 0.12) 100%
+    110deg,
+    rgba(54, 57, 64, 0.94) 0%,
+    rgba(40, 42, 48, 0.95) 55%,
+    rgba(32, 34, 39, 0.96) 100%
   );
-  backdrop-filter: blur(16px) saturate(160%) brightness(104%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%) brightness(104%);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 html:not(.dark) .lens-view {
   background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.88) 0%,
-    rgba(240, 245, 255, 0.65) 100%
+    110deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(240, 245, 255, 0.88) 100%
   );
-  backdrop-filter: blur(16px) saturate(170%) brightness(102%);
-  -webkit-backdrop-filter: blur(16px) saturate(170%) brightness(102%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-/* Meniscus Edge Reflection (Delicate Bevel Catchlights) */
+/* Prismatic Meniscus Optical Dispersion on Top & Bottom Overhang Domes */
 .lens-meniscus {
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  box-shadow:
-    inset 0 1.2px 1px -0.5px rgba(255, 255, 255, 0.35),
-    inset 0 -1px 1px -0.5px rgba(0, 0, 0, 0.25);
-  opacity: 0.85;
+  z-index: 3;
+  background:
+    /* Top Curved Meniscus Spectral Dispersion (tight 9px band at the top rim) */
+    radial-gradient(ellipse 100% 11px at 50% 0px,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.3) 25%,
+      rgba(255, 45, 85, 0.85) 45%,
+      rgba(255, 200, 0, 0.9) 58%,
+      rgba(45, 220, 95, 0.85) 70%,
+      rgba(0, 200, 255, 0.95) 82%,
+      rgba(90, 80, 245, 0.75) 94%,
+      transparent 100%
+    ),
+    /* Bottom Curved Meniscus Spectral Dispersion (tight 9px band at the bottom rim) */
+    radial-gradient(ellipse 100% 11px at 50% 100%,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.3) 25%,
+      rgba(255, 45, 85, 0.85) 45%,
+      rgba(255, 200, 0, 0.9) 58%,
+      rgba(45, 220, 95, 0.85) 70%,
+      rgba(0, 200, 255, 0.95) 82%,
+      rgba(90, 80, 245, 0.75) 94%,
+      transparent 100%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.92;
+  filter: blur(0.35px);
+}
+
+html:not(.dark) .lens-meniscus {
+  opacity: 0.65;
+  mix-blend-mode: multiply;
 }
 
 /* Specular Catch-light Tracking Cursor */
@@ -394,17 +423,22 @@ html:not(.dark) .lens-view {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
+  z-index: 4;
   background:
-    radial-gradient(ellipse 70px 24px at var(--glow-x, 50%) 0%, rgba(255, 255, 255, 0.35), transparent 70%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 35%);
-  mix-blend-mode: overlay;
+    radial-gradient(ellipse 70px 24px at var(--glow-x, 50%) 2px, rgba(255, 255, 255, 0.28), transparent 70%);
+  box-shadow:
+    inset 1px 0 1px rgba(255, 255, 255, 0.35),
+    inset -1px 0 1px rgba(255, 255, 255, 0.20),
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.15);
 }
 
 html:not(.dark) .lens-sheen {
   background:
-    radial-gradient(ellipse 70px 24px at var(--glow-x, 50%) 0%, rgba(255, 255, 255, 0.75), transparent 70%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, transparent 35%);
-  mix-blend-mode: soft-light;
+    radial-gradient(ellipse 70px 24px at var(--glow-x, 50%) 2px, rgba(255, 255, 255, 0.75), transparent 70%);
+  box-shadow:
+    inset 0 1.5px 0.5px rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.5);
 }
 
 /* Floating Glass Island Pill for Logo on scroll */
